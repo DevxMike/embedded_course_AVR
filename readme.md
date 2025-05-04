@@ -30,6 +30,12 @@ Additionally, this folder includes a set of C++ header files that abstract and s
     Includes the `UART_t` structure that groups UART register pointers, callback pointers for interrupts, and RX/TX buffers.  
     The `UART_comm` class uses `UART_t` to provide easy-to-use methods for UART reading and writing.
 
+  - `logger.hpp`  
+    Implements a simple, generic logging class template `Logger<CommIface, Timestamp_t>`.  
+    It takes any communication interface (e.g., `UART_comm`) and provides a `log()` method that supports `printf`-style formatted logging.  
+    This allows structured debugging or runtime status reporting over a serial connection or any custom interface.  
+    The class is lightweight and designed for embedded systems with limited resources.
+
 ## Requirements
 
 - `avr-gcc`, `avr-g++` and `avrdude` installed (for compiling and uploading C code)
@@ -38,6 +44,11 @@ Additionally, this folder includes a set of C++ header files that abstract and s
 - ISP programmer (e.g., USBasp, USBtinyISP) for flashing C code, if not using Arduino bootloader
 
 ## How to Use
+
+Compilation and flashing for atmega328p
+avr-g++ -mmcu=atmega328p -DF_CPU=16000000UL -Os -std=c++11 -o main.elf main.cpp
+avr-objcopy -O ihex -R .eeprom main.elf main.hex
+avrdude -c usbasp -p m328p -U flash:w:main.hex
 
 ### AVR C Code
 1. Navigate to the `AVR_Code/` directory.

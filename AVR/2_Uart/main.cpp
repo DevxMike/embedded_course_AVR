@@ -12,6 +12,7 @@
 #include "../communication.hpp"
 #include "../timer8_t.hpp"
 #include "../interrupts.hpp"
+#include "../logger.hpp"
 
 static inline void init_hw_timebase(timer8_t& t) {
     *t.tccra |= (1 << WGM01); // tryb CTC 
@@ -99,6 +100,9 @@ int main() {
     led.init(Digital_IO::OUTPUT);
 
     UART_Comm uart_handle(usart0);
+    Logger<UART_Comm, uint32_t> uart_logger{ uart_handle };
+
+    uart_logger.log("[%lu] main: system started\n\r");
 
     static uint32_t led_timer;
     static uint32_t uart_timer;
@@ -117,7 +121,7 @@ int main() {
         }
         
         if((logger_timer < now) && (now - logger_timer > 1000)) {
-            uart_handle.puts("Hello world from AVR!");
+            uart_logger.log("[%lu] main: hello world from AVR\n\r");
 
             logger_timer += 1000;
         }
