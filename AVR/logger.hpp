@@ -11,10 +11,11 @@ template <typename CommIface, typename Timestamp_t>
 class Logger {
 private:   
     CommIface& iface;
+    volatile Timestamp_t& ts;
 
 public:
-    Logger(CommIface& ciface):
-        iface { ciface } {}
+    Logger(CommIface& ciface, volatile Timestamp_t& timstmp):
+        iface { ciface }, ts { timstmp } {}
 
     void log(const char* fmt, ...) {
         char buf[LOG_BUF_SIZE];
@@ -24,7 +25,10 @@ public:
         int len = snprintf(buf, LOG_BUF_SIZE, fmt, args);
         va_end(args);
 
-        iface.puts(buf);
+        char out[LOG_BUF_SIZE + 32];
+        snprintf(out, sizeof(out), "[%lu] %s", ts, buf);
+
+        iface.puts(out);
     }
 };
 

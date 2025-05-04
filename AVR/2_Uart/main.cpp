@@ -100,9 +100,9 @@ int main() {
     led.init(Digital_IO::OUTPUT);
 
     UART_Comm uart_handle(usart0);
-    Logger<UART_Comm, uint32_t> uart_logger{ uart_handle };
+    Logger<UART_Comm, uint32_t> uart_logger{ uart_handle, millis };
 
-    uart_logger.log("[%lu] main: system started\n\r");
+    uart_logger.log("main: system started\n\r", millis);
 
     static uint32_t led_timer;
     static uint32_t uart_timer;
@@ -121,7 +121,7 @@ int main() {
         }
         
         if((logger_timer < now) && (now - logger_timer > 1000)) {
-            uart_logger.log("[%lu] main: hello world from AVR\n\r", millis);
+            uart_logger.log("main: hello world from AVR\n\r");
 
             logger_timer += 1000;
         }
