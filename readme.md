@@ -46,9 +46,9 @@ Additionally, this folder includes a set of C++ header files that abstract and s
 ## How to Use
 
 Compilation and flashing for atmega328p
-avr-g++ -mmcu=atmega328p -DF_CPU=16000000UL -Os -std=c++11 -o main.elf main.cpp
-avr-objcopy -O ihex -R .eeprom main.elf main.hex
-avrdude -c usbasp -p m328p -U flash:w:main.hex
+- avr-g++ -mmcu=atmega328p -DF_CPU=16000000UL -Os -std=c++11 -o main.elf main.cpp
+- avr-objcopy -O ihex -R .eeprom main.elf main.hex
+- avrdude -c usbasp -p m328p -U flash:w:main.hex
 
 ### AVR C Code
 1. Navigate to the `AVR_Code/` directory.

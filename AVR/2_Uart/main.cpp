@@ -121,7 +121,7 @@ int main() {
         }
         
         if((logger_timer < now) && (now - logger_timer > 1000)) {
-            uart_logger.log("[%lu] main: hello world from AVR\n\r");
+            uart_logger.log("[%lu] main: hello world from AVR\n\r", millis);
 
             logger_timer += 1000;
         }
