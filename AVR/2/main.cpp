@@ -8,10 +8,10 @@
 
 #include <avr/io.h>
 
-#include "gpio.hpp"
-#include "communication.hpp"
-#include "timer8_t.hpp"
-#include "interrupts.hpp"
+#include "../gpio.hpp"
+#include "../communication.hpp"
+#include "../timer8_t.hpp"
+#include "../interrupts.hpp"
 
 static inline void init_hw_timebase(timer8_t& t) {
     *t.tccra |= (1 << WGM01); // tryb CTC 

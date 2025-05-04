@@ -9,7 +9,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#include "gpio.hpp"
+#include "../gpio.hpp"
 
 static inline void init_hw_timebase() {
     TCCR0A |= (1 << WGM01); // tryb CTC 
