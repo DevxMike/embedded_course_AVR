@@ -13,6 +13,7 @@
 #include "../timer8_t.hpp"
 #include "../interrupts.hpp"
 #include "../logger.hpp"
+#include "../common_defs.hpp"
 
 static inline void init_hw_timebase(timer8_t& t) {
     *t.tccra |= (1 << WGM01); // tryb CTC 
@@ -53,36 +54,16 @@ void USART0_flush(UART_t& iface) {
     *iface.udr = iface.tx_buffer.pop().get();
 }
 
-UART_t usart0 {
-    .udr = &UDR0,
-    .ucsra = &UCSR0A,
-    .ucsrb = &UCSR0B,
-    .ucsrc = &UCSR0C,
-    .ubrrl = &UBRR0L,
-    .ubrrh = &UBRR0H,
-    .rx_complete_cback = rx_callback,
-    .tx_complete_cback = tx_callback,
-    .UDRIE_cback = nullptr,
-    .flush_tx = USART0_flush,
-    .busy = false
-};
-
-timer8_t timer0 {
-    .tccra = &TCCR0A,
-    .tccrb = &TCCR0B,
-    .tcnt = &TCNT0,
-    .ocra = &OCR0A,
-    .ocrb = &OCR0B,
-    .timsk = &TIMSK0,
-    .tifr = &TIFR0,
-    .compareB_cb = nullptr,
-    .compareA_cb = timer0_compa_callback,
-    .timer_overflow_cb = nullptr
-};
-
+UART_t usart0 = usart_base;
+timer8_t timer0 = timer0_base;
 volatile uint32_t millis = 0;
 
 int main() {
+    timer0.compareA_cb = timer0_compa_callback;
+    usart0.flush_tx = USART0_flush;
+    usart0.rx_complete_cback = rx_callback;
+    usart0.tx_complete_cback = tx_callback;
+
     millis = 0;
 
     init_hw_timebase(timer0);
@@ -90,11 +71,7 @@ int main() {
 
     sei();
 
-    GPIO_t GPIOB {
-        .ddr_reg = &DDRB,
-        .pin_reg = &PINB,
-        .port_reg = &PORTB
-    };
+    GPIO_t GPIOB = GPIOx_t(B);
 
     Digital_IO led { GPIOB, PB5 };
     led.init(Digital_IO::OUTPUT);

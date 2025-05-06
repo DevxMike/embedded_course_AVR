@@ -36,6 +36,10 @@ Additionally, this folder includes a set of C++ header files that abstract and s
     This allows structured debugging or runtime status reporting over a serial connection or any custom interface.  
     The class is lightweight and designed for embedded systems with limited resources.
 
+  - `common_defs.h`  
+    Contains hardware abstraction macros that define base instances for timers, UART, GPIO ports etc.  
+    It centralizes hardware mappings to simplify peripheral initialization and usage in user code.
+
 ## Requirements
 
 - `avr-gcc`, `avr-g++` and `avrdude` installed (for compiling and uploading C code)
