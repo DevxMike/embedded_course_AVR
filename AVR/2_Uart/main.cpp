@@ -42,11 +42,13 @@ void rx_callback(UART_t& iface) {
 }
 
 void tx_callback(UART_t& iface) {
-    if(iface.tx_buffer.empty()) {
-        iface.busy = false;
+    auto next = iface.tx_buffer.pop();
+    
+    if(next) {
+        *iface.udr = next.get();
     }
     else {
-        *iface.udr = iface.tx_buffer.pop().get();
+        iface.busy = false;
     }
 }
 
@@ -63,8 +65,6 @@ int main() {
     usart0.flush_tx = USART0_flush;
     usart0.rx_complete_cback = rx_callback;
     usart0.tx_complete_cback = tx_callback;
-
-    millis = 0;
 
     init_hw_timebase(timer0);
     init_hw_uart(usart0, 9600);

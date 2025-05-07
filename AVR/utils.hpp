@@ -22,6 +22,10 @@ public:
         return value;
     }
 
+    operator bool() const {
+        return has_value;
+    }
+
     void reset() {
         has_value = false;
     }
