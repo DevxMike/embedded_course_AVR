@@ -11,7 +11,7 @@ template <typename CommIface, typename Timestamp_t>
 class Logger {
 private:   
     CommIface& iface;
-    volatile Timestamp_t& ts;
+    volatile const Timestamp_t& ts;
 
 public:
     Logger(CommIface& ciface, volatile Timestamp_t& timstmp):
