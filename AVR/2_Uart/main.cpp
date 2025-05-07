@@ -12,24 +12,23 @@
 #include "../communication.hpp"
 #include "../timer8_t.hpp"
 #include "../interrupts.hpp"
-#include "../logger.hpp"
 #include "../common_defs.hpp"
 
 static inline void init_hw_timebase(timer8_t& t) {
-    *t.tccra |= (1 << WGM01); // tryb CTC 
-    *t.tccrb |= (1 << CS01) | (1 << CS00); // 64 preskaler
-    *t.ocra = 249; // przerwanie co 1kHz (1ms)
-    *t.timsk |= (1 << OCIE0A); // wlacz przerwanie compare match
+    *t.tccra |= (1 << WGM01);  
+    *t.tccrb |= (1 << CS01) | (1 << CS00); 
+    *t.ocra = 249; 
+    *t.timsk |= (1 << OCIE0A); 
 }
 
 static inline void init_hw_uart(UART_t& iface, uint16_t baudrate) {
     uint16_t ubrr = (F_CPU / (16UL * baudrate)) - 1;
 
-    *iface.ubrrh = (ubrr >> 8) & 0xFF; // ustawienie baudrate
+    *iface.ubrrh = (ubrr >> 8) & 0xFF; 
     *iface.ubrrl = ubrr & 0xFF;
 
-    *iface.ucsrc = (1 << UCSZ01) | (1 << UCSZ00); // 8bit, bez parzystosci, 1 stop bit
-    *iface.ucsrb |= (1 << RXCIE0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << TXEN0); // wlaczenie tx i rx, zezwolenie na przerwanie rx 
+    *iface.ucsrc = (1 << UCSZ01) | (1 << UCSZ00); 
+    *iface.ucsrb |= (1 << RXCIE0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << TXEN0); 
 }
 
 void timer0_compa_callback(timer8_t& t) {
@@ -39,6 +38,14 @@ void timer0_compa_callback(timer8_t& t) {
 
 void rx_callback(UART_t& iface) {
     iface.rx_buffer.push(*iface.udr);
+}
+
+void USART0_flush(UART_t& iface) {
+    auto next = iface.tx_buffer.pop();
+
+    if(next) {
+        *iface.udr = next.get();
+    } 
 }
 
 void tx_callback(UART_t& iface) {
@@ -52,13 +59,50 @@ void tx_callback(UART_t& iface) {
     }
 }
 
-void USART0_flush(UART_t& iface) {
-    *iface.udr = iface.tx_buffer.pop().get();
-}
-
-UART_t usart0 = usart_base;
 timer8_t timer0 = timer0_base;
 volatile uint32_t millis = 0;
+
+UART_t usart0 = usart_base;
+UART_Comm uart_handle(usart0);
+
+GPIO_t GPIOB = GPIOx_t(B);
+Digital_IO led { GPIOB, PB5 };
+
+static void UART_rx_LED_ctl(UART_Comm& iface, Digital_IO& led) {
+    auto next = iface.getc();
+
+    enum {
+        TURN_OFF = 'f',
+        TURN_ON = 'o'
+    } availableCommands;
+
+    if(next) {
+        char c = next.get();
+
+        switch(c) {
+            case TURN_OFF:
+            case TURN_ON:
+                iface.puts("CMD OK, LED: ");
+                break;
+            
+            default:
+                iface.puts("CMD unknown\n\r");
+                break;
+        }
+
+        switch(c) {
+            case TURN_OFF:
+                led.set_output(false);
+                iface.puts("OFF\n\r");
+                break;
+
+            case TURN_ON:
+                led.set_output(true);
+                iface.puts("ON\n\r");
+                break;
+        }
+    }
+}
 
 int main() {
     timer0.compareA_cb = timer0_compa_callback;
@@ -70,41 +114,17 @@ int main() {
     init_hw_uart(usart0, 9600);
 
     sei();
-
-    GPIO_t GPIOB = GPIOx_t(B);
-
-    Digital_IO led { GPIOB, PB5 };
+    
     led.init(Digital_IO::OUTPUT);
 
-    UART_Comm uart_handle(usart0);
-    Logger<UART_Comm, uint32_t> uart_logger{ uart_handle, millis };
-
-    uart_logger.log("main: system started\n\r", millis);
-
-    static uint32_t led_timer;
     static uint32_t uart_timer;
-    static uint32_t logger_timer;
-
-    bool led_state = false;
 
     while(1) {
         uint32_t now = millis;
 
-        if((led_timer < now) && (now - led_timer >= 500)) {
-            led_state = !led_state;
-            led_timer += 500;
-
-            led.set_output(led_state);
-        }
-        
-        if((logger_timer < now) && (now - logger_timer > 1000)) {
-            uart_logger.log("main: hello world from AVR\n\r");
-
-            logger_timer += 1000;
-        }
-
         if((uart_timer < now) && (now - uart_timer > 10)) {
             uart_handle.flush();
+            UART_rx_LED_ctl(uart_handle, led);
 
             uart_timer += 5;
         }
