@@ -16,6 +16,9 @@ Additionally, this folder includes a set of C++ header files that abstract and s
   - `gpio.hpp`  
     Defines the `GPIO_t` structure to describe an I/O port and a `Digital_IO` class to configure any digital pin as an input or output with simple methods.
 
+  - `button.hpp` 
+    Defines the `PushButton` class that abstracts button handling, including debouncing and detecting button presses/releases. It allows the user to assign custom callback functions for button events and includes a timestamp generator for accurate debouncing timing. This class simplifies button interaction in embedded systems by ensuring stable button state detection.
+
   - `utils.hpp`  
     A lightweight implementation of an `Optional` type, useful for safe value handling in embedded systems without dynamic allocation.
 
