@@ -9,7 +9,7 @@
 #include <avr/io.h>
 
 #include "../gpio.hpp"
-// #include "../communication.hpp"
+#include "../communication.hpp"
 #include "../timer8_t.hpp"
 #include "../interrupts.hpp"
 #include "../common_defs.hpp"

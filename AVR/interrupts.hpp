@@ -19,6 +19,24 @@ ISR(TIMER0_COMPB_vect) {
 }
 
 ISR(TIMER0_OVF_vect) {
+    if(timer2.timer_overflow_cb != nullptr) {
+        timer2.timer_overflow_cb(timer0);
+    }
+}
+
+ISR(TIMER2_COMPA_vect) {
+    if(timer2.compareA_cb != nullptr) {
+        timer2.compareA_cb(timer0);
+    }
+}
+
+ISR(TIMER2_COMPB_vect) {
+    if(timer2.compareB_cb != nullptr) {
+        timer2.compareB_cb(timer0);
+    }
+}
+
+ISR(TIMER2_OVF_vect) {
     if(timer0.timer_overflow_cb != nullptr) {
         timer0.timer_overflow_cb(timer0);
     }

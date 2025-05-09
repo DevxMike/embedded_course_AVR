@@ -20,6 +20,8 @@ struct timer8_t {
 };
 
 extern timer8_t timer0;
+extern timer8_t timer2;
+
 extern volatile uint32_t millis;
 
 uint32_t get_timestamp() {

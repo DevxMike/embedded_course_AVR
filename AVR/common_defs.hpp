@@ -18,6 +18,19 @@
     .timer_overflow_cb = nullptr \
     })
 
+#define timer2_base ((timer8_t){ \
+    .tccra = &TCCR2A, \
+    .tccrb = &TCCR2B, \
+    .tcnt = &TCNT2,   \
+    .ocra = &OCR2A,   \
+    .ocrb = &OCR2B,   \
+    .timsk = &TIMSK2, \
+    .tifr = &TIFR2,   \
+    .compareB_cb = nullptr,   \
+    .compareA_cb = nullptr,   \
+    .timer_overflow_cb = nullptr \
+})
+
 #define usart_base ((UART_t){   \
     .udr = &UDR0,      \
     .ucsra = &UCSR0A,  \
