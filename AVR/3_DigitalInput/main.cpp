@@ -67,8 +67,9 @@ UART_t usart0 = usart_base;
 UART_Comm uart_handle(usart0);
 
 GPIO_t GPIOB = GPIOx_t(B);
+
 Digital_IO led_output { GPIOB, PB5 };
-Digital_IO button_input { GPIOB, PB4 };
+Digital_IO button_input { GPIOB, PB0 };
 
 void button_callback(Digital_IO& io) {
     static bool led_state = false;
@@ -84,7 +85,13 @@ PushButton button_manager {
     PushButton::callback_set(button_callback)
 };
 
+uint32_t poll_timer;
+uint32_t log_timer;
+
+
 int main() {
+    timer0.compareA_cb = timer0_compa_callback;
+
     init_hw_timebase(timer0);
 
     sei();
@@ -93,6 +100,9 @@ int main() {
     button_input.init(Digital_IO::INPUT_PULLUP);
 
     while(1) {
-        button_manager.poll();
+        if((get_timestamp() > poll_timer) && (get_timestamp() - poll_timer >= 10)) {
+            button_manager.poll();
+            poll_timer += 10;
+        }
     }
 }
