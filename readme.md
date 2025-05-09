@@ -15,7 +15,8 @@ Additionally, this folder includes a set of C++ header files that abstract and s
 
   - `gpio.hpp`  
     Defines the `GPIO_t` structure to describe an I/O port and a `Digital_IO` class to configure any digital pin as an input or output with simple methods.
-  - `leddisplay.hpp`
+ 
+ - `LEDDisplay.hpp`
     Defines the `LEDDisplay` class template for controlling multi-digit 7-segment LED displays with optional decimal points. It supports both common `anode` and `cathode` configurations and handles digit multiplexing through the next() method. The display content is configured using an array of `SignleLEDSegment` structures, which represent each digit and optional dot state. Designed for efficient and modular use in embedded systems.
 
   - `button.hpp` 
