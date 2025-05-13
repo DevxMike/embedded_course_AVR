@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "main.hpp"
+#include <avr/interrupt.h>
 
 struct timer8_t {
     typedef void (*cback_type)(timer8_t&);
@@ -35,7 +36,9 @@ extern timer8_t timer2;
 extern volatile uint32_t millis;
 
 uint32_t get_timestamp() {
+    cli();
     return millis;
+    sei();
 }
 
 #endif

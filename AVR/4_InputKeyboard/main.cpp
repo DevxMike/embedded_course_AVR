@@ -14,6 +14,7 @@
 #include "../interrupts.hpp"
 #include "../common_defs.hpp"
 #include "../button.hpp"
+#include "../matrix_kbd.hpp"
 
 static inline void init_hw_timebase(timer8_t& t) {
     *t.tccra |= (1 << WGM01);  
@@ -22,6 +23,23 @@ static inline void init_hw_timebase(timer8_t& t) {
     *t.timsk |= (1 << OCIE0A); 
 }
 
+void timer0_compa_callback(timer8_t& t) {
+    (void)t;
+    ++millis;
+}
+
+timer8_t timer0 = timer0_base;
+volatile uint32_t millis = 0;
+
+static inline void init_hw_led_timer(timer8_t& t) {
+    *t.tccra |= (1 << WGM21);  
+    *t.tccrb |= (1 << CS22);
+    *t.ocra = 249; 
+    *t.timsk |= (1 << OCIE2A); 
+}
+
+timer8_t timer2 = timer2_base;
+
 static inline void init_hw_uart(UART_t& iface, uint16_t baudrate) {
     uint16_t ubrr = (F_CPU / (16UL * baudrate)) - 1;
 
@@ -29,16 +47,7 @@ static inline void init_hw_uart(UART_t& iface, uint16_t baudrate) {
     *iface.ubrrl = ubrr & 0xFF;
 
     *iface.ucsrc = (1 << UCSZ01) | (1 << UCSZ00); 
-    *iface.ucsrb |= (1 << RXCIE0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << TXEN0); 
-}
-
-void timer0_compa_callback(timer8_t& t) {
-    (void)t;
-    ++millis;
-}
-
-void rx_callback(UART_t& iface) {
-    iface.rx_buffer.push(*iface.udr);
+    *iface.ucsrb |= (1 << TXCIE0) | (1 << TXEN0); 
 }
 
 void USART0_flush(UART_t& iface) {
@@ -60,49 +69,75 @@ void tx_callback(UART_t& iface) {
     }
 }
 
-timer8_t timer0 = timer0_base;
-volatile uint32_t millis = 0;
-
 UART_t usart0 = usart_base;
 UART_Comm uart_handle(usart0);
 
-GPIO_t GPIOB = GPIOx_t(B);
+GPIO_t GPIOD_desc = GPIOx_t(D);
+GPIO_t GPIOB_desc = GPIOx_t(B);
 
-Digital_IO led_output { GPIOB, PB5 };
-Digital_IO button_input { GPIOB, PB0 };
-
-void button_callback(Digital_IO& io) {
-    static bool led_state = false;
-    (void)io;
-
-    led_state = !led_state;
-    led_output.set_output(led_state);
-}
-
-PushButton button_manager { 
-    button_input,
-    get_timestamp,
-    PushButton::callback_set(button_callback)
+Digital_IO columns[] {
+    { GPIOD_desc, PD7 }, { GPIOD_desc, PD6 },
+    { GPIOD_desc, PD5 }, { GPIOD_desc, PD4 }
 };
 
-uint32_t poll_timer;
+Digital_IO rows[] {
+    { GPIOD_desc, PD3 }, { GPIOD_desc, PD2 },
+    { GPIOB_desc, PB1 }, { GPIOB_desc, PB0 }
+};
+
+MatrixKBD<4, 4> matrix4x4 { columns, rows };
+
+
+void timer2_compa_callback(timer8_t& t) {
+    (void)t;
+    matrix4x4.poll();
+}
+
+void print_kbd() {
+    uart_handle.puts("KBD STATE\n\r");
+
+    for(uint8_t i = 0; i < 4; ++i) {
+        for(uint8_t j = 0; j < 4; ++j) {
+            auto reading = matrix4x4.get_button_reading(i, j);
+            if(reading) {
+                bool v = reading.get();
+
+                uart_handle.puts(v? "1 " : "0 ");
+            }
+        }
+        uart_handle.puts("\n\r");
+    }
+    uart_handle.puts("\n\r");
+}
+
 uint32_t log_timer;
+uint32_t flush_timer;
+
 
 
 int main() {
     timer0.compareA_cb = timer0_compa_callback;
+    timer2.compareA_cb = timer2_compa_callback;
+    usart0.tx_complete_cback = tx_callback;
+    usart0.flush_tx = USART0_flush;
 
     init_hw_timebase(timer0);
+    init_hw_led_timer(timer2);
+    init_hw_uart(usart0, 9600);
+
+    matrix4x4.begin();
 
     sei();
 
-    led_output.init(Digital_IO::OUTPUT);
-    button_input.init(Digital_IO::INPUT_PULLUP);
 
     while(1) {
-        if((get_timestamp() > poll_timer) && (get_timestamp() - poll_timer >= 10)) {
-            button_manager.poll();
-            poll_timer += 10;
+        if((get_timestamp() > log_timer) && (get_timestamp() - log_timer >= 500)) {
+            print_kbd();
+            log_timer += 500;
+        }
+        if((get_timestamp() > flush_timer) && (get_timestamp() - flush_timer >= 5)) {
+            uart_handle.flush();
+            flush_timer += 5;
         }
     }
 }
