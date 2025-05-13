@@ -2,6 +2,7 @@
 #define communication_h
 
 #include "utils.hpp"
+#include "main.hpp"
 
 template<typename T, uint16_t size>
 class CyclicBuffer {
@@ -70,7 +71,11 @@ struct UART_t {
     CyclicBuffer<char, buffer_size> tx_buffer;
 };
 
+#if USE_UART
+
 extern UART_t usart0;
+
+#endif
 
 class UART_Comm {
 public:

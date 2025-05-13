@@ -26,12 +26,13 @@ const uint8_t seven_seg_digits[] = {
     0b01111111, // 8 → ABCDEFG
     0b01101111, // 9 → ABCDFG
     0b00000000  // inactive
-};
+}; // 0bxGFEDCBA format
 
 constexpr uint8_t inactive_idx = 10;
 
 struct SignleLEDSegment {
     uint8_t value;
+    
 #if DISPLAY_HAS_DOT
     bool dot_active;
 #endif
@@ -40,30 +41,30 @@ struct SignleLEDSegment {
 template <uint8_t display_size>
 class LEDDisplay {
 private:
-#if DISPLAY_HAS_DOT
-    static constexpr uint8_t num_segment_pins = 8;
-    enum {
-        A = 0,
-        B,
-        C,
-        D,
-        E,
-        F,
-        G,
-        DOT
-    } SegmentMapping;
-#else
-    static constexpr uint8_t num_segment_pins = 7;
-    enum {
-        A = 0,
-        B,
-        C,
-        D,
-        E,
-        F,
-        G
-    } SegmentMapping;
-#endif
+    #if DISPLAY_HAS_DOT
+        static constexpr uint8_t num_segment_pins = 8;
+        enum {
+            A = 0,
+            B,
+            C,
+            D,
+            E,
+            F,
+            G,
+            DOT
+        } SegmentMapping;
+    #else
+        static constexpr uint8_t num_segment_pins = 7;
+        enum {
+            A = 0,
+            B,
+            C,
+            D,
+            E,
+            F,
+            G
+        } SegmentMapping;
+    #endif
 
     SignleLEDSegment segments[display_size];
     Digital_IO* common_pins;
@@ -95,6 +96,7 @@ private:
                 (code & (1 << i))? SEGMENT_ON : SEGMENT_OFF
             );
         }
+
 #if DISPLAY_HAS_DOT
         segment_pins[DOT].set_output(
             segments[display_num].dot_active? SEGMENT_ON : SEGMENT_OFF
@@ -103,9 +105,8 @@ private:
     }
 
 public:
-
     LEDDisplay(Digital_IO* com, Digital_IO* seg)
-        : common_pins(com), segment_pins(seg), active_segment(0) {}
+        : common_pins(com), segment_pins(seg), active_segment(0) {} 
 
     void next() {
         turn_off_coms();
@@ -113,13 +114,12 @@ public:
         set_segment_pins(active_segment);
         set_active(active_segment);
     }
-
+    
     void set_segments(const SignleLEDSegment (&disp_vals)[display_size]) {
         for(uint8_t i = 0; i < display_size; ++i) {
             segments[i] = disp_vals[i];
         }
     }
 };
-
 
 #endif

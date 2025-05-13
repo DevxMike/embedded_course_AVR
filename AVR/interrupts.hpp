@@ -5,6 +5,9 @@
 
 #include "communication.hpp"
 #include "timer8_t.hpp"
+#include "main.hpp"
+
+#if USE_TIMER0
 
 ISR(TIMER0_COMPA_vect) {
     if(timer0.compareA_cb != nullptr) {
@@ -24,6 +27,10 @@ ISR(TIMER0_OVF_vect) {
     }
 }
 
+#endif
+
+#if USE_TIMER2
+
 ISR(TIMER2_COMPA_vect) {
     if(timer2.compareA_cb != nullptr) {
         timer2.compareA_cb(timer0);
@@ -42,6 +49,10 @@ ISR(TIMER2_OVF_vect) {
     }
 }
 
+#endif
+
+#if USE_UART
+
 ISR(USART_TX_vect) {
     if(usart0.tx_complete_cback != nullptr) {
         usart0.tx_complete_cback(usart0);
@@ -59,5 +70,7 @@ ISR(USART_UDRE_vect) {
         usart0.UDRIE_cback(usart0);
     }
 }
+
+#endif
 
 #endif

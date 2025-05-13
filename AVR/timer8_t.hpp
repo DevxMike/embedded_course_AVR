@@ -2,6 +2,7 @@
 #define timer8_t_h
 
 #include <stdint.h>
+#include "main.hpp"
 
 struct timer8_t {
     typedef void (*cback_type)(timer8_t&);
@@ -19,8 +20,17 @@ struct timer8_t {
     cback_type timer_overflow_cb;
 };
 
+#if USE_TIMER0
+
 extern timer8_t timer0;
+
+#endif
+
+#if USE_TIMER2
+
 extern timer8_t timer2;
+
+#endif
 
 extern volatile uint32_t millis;
 

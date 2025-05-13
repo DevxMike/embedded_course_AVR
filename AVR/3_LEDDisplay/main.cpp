@@ -9,7 +9,6 @@
 #include <avr/io.h>
 
 #include "../gpio.hpp"
-#include "../communication.hpp"
 #include "../timer8_t.hpp"
 #include "../interrupts.hpp"
 #include "../common_defs.hpp"
@@ -22,23 +21,6 @@ static inline void init_hw_timebase(timer8_t& t) {
     *t.timsk |= (1 << OCIE0A); 
 }
 
-static inline void init_hw_led_timer(timer8_t& t) {
-    *t.tccra |= (1 << WGM21);  
-    *t.tccrb |= (1 << CS22);
-    *t.ocra = 249; 
-    *t.timsk |= (1 << OCIE2A); 
-}
-
-static inline void init_hw_uart(UART_t& iface, uint16_t baudrate) {
-    uint16_t ubrr = (F_CPU / (16UL * baudrate)) - 1;
-
-    *iface.ubrrh = (ubrr >> 8) & 0xFF; 
-    *iface.ubrrl = ubrr & 0xFF;
-
-    *iface.ucsrc = (1 << UCSZ01) | (1 << UCSZ00); 
-    *iface.ucsrb |= (1 << RXCIE0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << TXEN0); 
-}
-
 void timer0_compa_callback(timer8_t& t) {
     (void)t;
     ++millis;
@@ -47,23 +29,27 @@ void timer0_compa_callback(timer8_t& t) {
 timer8_t timer0 = timer0_base;
 volatile uint32_t millis = 0;
 
-UART_t usart0 = usart_base;
+static inline void init_hw_led_timer(timer8_t& t) {
+    *t.tccra |= (1 << WGM21);  
+    *t.tccrb |= (1 << CS22);
+    *t.ocra = 249; 
+    *t.timsk |= (1 << OCIE2A); 
+}
 
-GPIO_t GPIOD = GPIOx_t(D);
+GPIO_t GPIOD_desc = GPIOx_t(D);
 Digital_IO segment_pins[]{ 
-    { GPIOD, PD7 }, { GPIOD, PD6 },
-    { GPIOD, PD5 }, { GPIOD, PD4 }, { GPIOD, PD3 }, 
-    { GPIOD, PD2 }, { GPIOD, PD1 }, { GPIOD, PD0 }
+    { GPIOD_desc, PD7 }, { GPIOD_desc, PD6 },
+    { GPIOD_desc, PD5 }, { GPIOD_desc, PD4 }, { GPIOD_desc, PD3 }, 
+    { GPIOD_desc, PD2 }, { GPIOD_desc, PD1 }, { GPIOD_desc, PD0 }
 };
 
-GPIO_t GPIOC = GPIOx_t(C);
+GPIO_t GPIOC_desc = GPIOx_t(C);
 Digital_IO common_pins[]{
-    { GPIOC, PC0 }, { GPIOC, PC1 },
-    { GPIOC, PC2 }, { GPIOC, PC3 }
+    { GPIOC_desc, PC0 }, { GPIOC_desc, PC1 },
+    { GPIOC_desc, PC2 }, { GPIOC_desc, PC3 }
 };
 
 LEDDisplay<4> my_display(common_pins, segment_pins);
-uint32_t poll_timer;
 uint32_t value_timer;
 
 timer8_t timer2 = timer2_base;
@@ -97,12 +83,10 @@ int main() {
         { .value = 3, .dot_active = false }
     };
 
-    my_display.set_segments(segments);
-
     static uint32_t tmp = 0;
 
     while(1) {
-        if((get_timestamp() > value_timer) && (get_timestamp() - value_timer >= 500)) {
+        if((get_timestamp() > value_timer) && (get_timestamp() - value_timer >= 1000)) {
             tmp++;
             segments[0].value = (tmp / 1000) % 10;
             segments[1].value = (tmp / 100) % 10;
@@ -113,7 +97,7 @@ int main() {
             
             my_display.set_segments(segments);
 
-            value_timer += 500;
+            value_timer += 1000;
         }
     }
 }
