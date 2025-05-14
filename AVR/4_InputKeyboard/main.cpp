@@ -47,7 +47,11 @@ static inline void init_hw_uart(UART_t& iface, uint16_t baudrate) {
     *iface.ubrrl = ubrr & 0xFF;
 
     *iface.ucsrc = (1 << UCSZ01) | (1 << UCSZ00); 
-    *iface.ucsrb |= (1 << TXCIE0) | (1 << TXEN0); 
+    *iface.ucsrb |= (1 << RXCIE0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << TXEN0); 
+}
+
+void rx_callback(UART_t& iface) {
+    iface.rx_buffer.push(*iface.udr);
 }
 
 void USART0_flush(UART_t& iface) {
@@ -104,6 +108,9 @@ void print_kbd() {
 
                 uart_handle.puts(v? "1 " : "0 ");
             }
+            else {
+                uart_handle.puts("? ");
+            }
         }
         uart_handle.puts("\n\r");
     }
@@ -118,8 +125,9 @@ uint32_t flush_timer;
 int main() {
     timer0.compareA_cb = timer0_compa_callback;
     timer2.compareA_cb = timer2_compa_callback;
-    usart0.tx_complete_cback = tx_callback;
     usart0.flush_tx = USART0_flush;
+    usart0.rx_complete_cback = rx_callback;
+    usart0.tx_complete_cback = tx_callback;
 
     init_hw_timebase(timer0);
     init_hw_led_timer(timer2);

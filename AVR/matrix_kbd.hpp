@@ -28,11 +28,13 @@ private:
     void set_all_cols_input() {
         set_active_col(num_cols);
     }
+    
+    uint8_t get_index(uint8_t row, uint8_t col) const {
+        return row * num_cols + col;
+    }
 
     void update_readings(uint8_t row, uint8_t col, bool state) {
-        uint8_t idx = row * num_cols + col;
-
-        button_readings[idx] = state;
+        button_readings[get_index(row, col)] = state;
     }
 
 public:
@@ -45,8 +47,6 @@ public:
     
     void begin() {
         set_all_cols_input();
-        cols[0].init(Digital_IO::OUTPUT);
-        cols[0].set_output(false);
 
         for(uint8_t i = 0; i < num_rows; ++i) {
             rows[i].init(Digital_IO::INPUT_PULLUP);
@@ -58,27 +58,25 @@ public:
     }
 
     Custom::Optional<bool> get_button_reading(int row, int col) const {
-        uint8_t idx = row * num_cols + col;
-
-        if(idx >= num_rows * num_cols) {
+        if(row >= num_rows || col >= num_cols) {
             return {};
         }
         else {
-            bool reading = button_readings[idx];
+            bool reading = static_cast<bool>(button_readings[get_index(row, col)]);
             return Custom::Optional<bool>(reading); 
         }
     }
     
     void poll() {
         for(uint8_t i = 0; i < num_rows; ++i) {
-            bool row_reading = rows[i].read_input()? false : true;
+            bool row_reading = (rows[i].read_input()? false : true);
             update_readings(i, current_col, row_reading);
         }
 
         set_all_cols_input();
 
         current_col = (current_col + 1) % num_cols;
-
+        cols[current_col].init(Digital_IO::OUTPUT);
         cols[current_col].set_output(false);
     }
 };

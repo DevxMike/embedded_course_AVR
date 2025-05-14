@@ -22,14 +22,14 @@ ISR(TIMER0_COMPB_vect) {
 }
 
 ISR(TIMER0_OVF_vect) {
-    if(timer2.timer_overflow_cb != nullptr) {
-        timer2.timer_overflow_cb(timer0);
+    if(timer0.timer_overflow_cb != nullptr) {
+        timer0.timer_overflow_cb(timer0);
     }
 }
 
 #endif
 
-#if USE_TIMER2
+#if USE_TIMER2 
 
 ISR(TIMER2_COMPA_vect) {
     if(timer2.compareA_cb != nullptr) {
