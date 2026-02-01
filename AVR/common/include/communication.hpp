@@ -67,7 +67,7 @@ struct UART_t {
 
     bool busy;
 
-    CyclicBuffer<char, buffer_size> rx_buffer;
+    CyclicBuffer<char, buffer_size> rx_buffer   ;
     CyclicBuffer<char, buffer_size> tx_buffer;
 };
 
@@ -77,17 +77,30 @@ extern UART_t usart0;
 
 #endif
 
-class UART_Comm {
+class Comm_IO {
 public:
-    UART_Comm(UART_t& uart):
-        iface { uart } {}
+    ~Comm_IO() = default;
 
-    char putc(char c) {
+    virtual char putc(char c) = 0;
+    virtual uint16_t puts(const char* s) = 0;
+    virtual uint16_t put_buffer(const char* b, uint16_t len);
+    virtual void flush() = 0;
+    virtual Custom::Optional<char> peek() const = 0;
+    virtual Custom::Optional<char> getc() = 0;
+};
+
+template <typename comm_iface_class>
+class Communication : Comm_IO {
+public:
+    Communication(comm_iface_class& i):
+        iface { i } {}
+    
+    char putc(char c) final {
         iface.tx_buffer.push(c);
         return c;
     }
 
-    uint16_t puts(const char* s) {
+    uint16_t puts(const char* s) override {
         uint16_t num = 0;
 
         while(*s) {
@@ -98,7 +111,7 @@ public:
         return num;
     }
 
-    uint16_t put_buffer(const char* b, uint16_t len) {
+    uint16_t put_buffer(const char* b, uint16_t len) override {
         if(len > buffer_size) {
             return 0;
         }
@@ -114,7 +127,7 @@ public:
         }
     }
 
-    void flush() {
+    void flush() override {
         if(iface.tx_buffer.empty() || iface.busy || iface.flush_tx == nullptr){
             return;
         }
@@ -123,15 +136,15 @@ public:
         }
     }
 
-    Custom::Optional<char> peek() const {
+    Custom::Optional<char> peek() const override {
         return iface.rx_buffer.peek();
     }
 
-    Custom::Optional<char> getc() {
+    Custom::Optional<char> getc() override {
         return iface.rx_buffer.pop();
     }
 
 private:
-    UART_t& iface;
+    comm_iface_class& iface;
 };
 #endif

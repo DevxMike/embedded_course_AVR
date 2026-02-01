@@ -46,7 +46,7 @@ void tx_callback(UART_t& iface) {
 }
 
 UART_t usart0 = usart_base;
-UART_Comm uart_handle(usart0);
+Communication<UART_t> uart_handle(usart0);
 
 int main() {
     usart0.flush_tx = USART0_flush;

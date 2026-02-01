@@ -16,5 +16,6 @@ uint32_t Timebase::now() {
 }
 
 void Timebase::tick(timer8_t& t) {
+    (void)t;
     ++millis;
 }
