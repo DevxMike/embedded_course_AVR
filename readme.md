@@ -1,75 +1,112 @@
 # AVR Course – Examples Repository
 
-This repository contains examples presented throughout the AVR programming course. The content is divided into two main parts, showing how to implement similar functionalities using both low-level C code and the Arduino framework.
+This repository contains examples presented throughout the AVR programming course.
+The course shows how to work with AVR microcontrollers using both low-level AVR C/C++
+(register-level programming) and the Arduino framework for comparison.
+
+The repository evolves together with the course – later lessons introduce refactoring,
+code reuse, and more structured project layouts, similar to real embedded projects.
 
 
 
 ## Repository Structure
-- `ArduinoAVR/`  
-  Contains Arduino-based equivalents of the AVR C examples. These sketches use the Arduino API and simplify development using prebuilt functions. They are ideal for beginners or for rapid prototyping, while still reflecting the same core ideas as in the low-level code.
 
-- `AVR_Code/`  
-  Contains pure C code for AVR microcontrollers. These examples demonstrate direct register-level programming without relying on any external libraries. They are suitable for learning how AVR works under the hood and are focused on low-level control and understanding of microcontroller internals.
+### `ArduinoAVR/`
+Contains Arduino-based equivalents of the AVR examples.
+These sketches use the Arduino API and are intended to:
+- show the same ideas in a higher-level environment
+- help beginners understand the concepts faster
+- allow quick testing and prototyping
 
-Additionally, this folder includes a set of C++ header files that abstract and simplify hardware control using modern, class-based design. These files allow writing more readable and reusable code for common embedded tasks:
+---
 
-  - `gpio.hpp`  
-    Defines the `GPIO_t` structure to describe an I/O port and a `Digital_IO` class to configure any digital pin as an input or output with simple methods.
- 
-  - `matrix_kbd.hpp`  
-    Template class `MatrixKBD` for scanning and reading matrix keypads (rows × columns).  
-    Handles column multiplexing and row input reading to detect pressed keys.  
-    Provides non-blocking `poll()` method and access to button states. Simplifies keypad interfacing in embedded projects.
+### `AVR/`
+Contains bare-metal AVR C/C++ examples using `avr-gcc` / `avr-g++`.
 
- - `LEDDisplay.hpp`
-    Defines the `LEDDisplay` class template for controlling multi-digit 7-segment LED displays with optional decimal points. It supports both common `anode` and `cathode` configurations and handles digit multiplexing through the next() method. The display content is configured using an array of `SignleLEDSegment` structures, which represent each digit and optional dot state. Designed for efficient and modular use in embedded systems.
+From lesson 5 onward, the project structure changes to better reflect
+real-world embedded development practices.
 
-  - `button.hpp` 
-    Defines the `PushButton` class that abstracts button handling, including debouncing and detecting button presses/releases. It allows the user to assign custom callback functions for button events and includes a timestamp generator for accurate debouncing timing. This class simplifies button interaction in embedded systems by ensuring stable button state detection.
+#### `AVR/common/`
+Shared code used across multiple AVR examples.
 
-  - `utils.hpp`  
-    A lightweight implementation of an `Optional` type, useful for safe value handling in embedded systems without dynamic allocation.
+- `include/` – reusable headers (drivers, abstractions, utilities)
+- `src/` – source files with implementations (interrupts, timers, etc.)
 
-  - `timer8_t.hpp`  
-    Defines the `timer8_t` structure, which holds pointers to timer registers and interrupt callback functions. This allows easy configuration and use of 8-bit timers in a modular way.
+This folder contains reusable components such as:
+- GPIO abstraction
+- UART communication
+- timers and interrupts
+- button handling with debouncing
+- LED display drivers
+- logging utilities
 
-  - `interrupts.hpp`  
-    Centralized file for defining and handling interrupt service routines used throughout the AVR examples.
+---
 
-  - `communication.hpp`  
-    Implements a circular buffer for communication tasks using `Optional`.  
-    Includes the `UART_t` structure that groups UART register pointers, callback pointers for interrupts, and RX/TX buffers.  
-    The `UART_comm` class uses `UART_t` to provide easy-to-use methods for UART reading and writing.
+### ⚠️ Important note about earlier lessons (1–4)
 
-  - `logger.hpp`  
-    Implements a simple, generic logging class template `Logger<CommIface, Timestamp_t>`.  
-    It takes any communication interface (e.g., `UART_comm`) and provides a `log()` method that supports `printf`-style formatted logging.  
-    This allows structured debugging or runtime status reporting over a serial connection or any custom interface.  
-    The class is lightweight and designed for embedded systems with limited resources.
+Lessons **1–4 were refactored** to introduce a shared `common/` directory.
+Because of this change:
 
-  - `common_defs.h`  
-    Contains hardware abstraction macros that define base instances for timers, UART, GPIO ports etc.  
-    It centralizes hardware mappings to simplify peripheral initialization and usage in user code.
+- Older projects **may not compile without modification**
+- Header paths and file locations have changed
+
+To preserve full backward compatibility, **a complete backup of lessons 1–4**
+is available in: AVR/lesson1_to_4_backup/
+
+
+This backup contains:
+- the original project layout
+- original headers and source files
+- Arduino and AVR examples exactly as shown in the early lessons
+
+👉 If you want to build or follow lessons 1–4 **exactly as presented in the course videos**,
+use the projects from `lesson1_to_4_backup`.
+
+---
 
 ## Requirements
 
-- `avr-gcc`, `avr-g++` and `avrdude` installed (for compiling and uploading C code)
+- `avr-gcc`, `avr-g++`, `avr-objcopy`
+- `avrdude`
+- AVR MCU (e.g. ATmega328P)
+- ISP programmer (e.g. USBasp) or Arduino bootloader
 - Arduino IDE (for Arduino examples)
-- AVR development board (e.g., ATmega328P, ATmega32)
-- ISP programmer (e.g., USBasp, USBtinyISP) for flashing C code, if not using Arduino bootloader
 
-## How to Use
+---
 
-Manual compilation and flashing for atmega328p
-- avr-g++ -mmcu=atmega328p -DF_CPU=16000000UL -Os -std=c++11 -o main.elf main.cpp
-- avr-objcopy -O ihex -R .eeprom main.elf main.hex
-- avrdude -c usbasp -p m328p -U flash:w:main.hex
+## Building AVR examples (manual)
+
+
+Example for ATmega328P:
+avr-g++ -mmcu=atmega328p -DF_CPU=16000000UL -Os -std=c++11 -o main.elf main.cpp
+avr-objcopy -O ihex -R .eeprom main.elf main.hex
+avrdude -c usbasp -p m328p -U flash:w:main.hex
 
 ### Build and flash script for atmega
+Using the included Makefile
+
+Each AVR project (starting from project no. 5) comes with a ready-to-use Makefile, already configured
+for that project. You can build and flash the project directly with:
+
+  make        # builds the HEX
+  make flash  # flashes the HEX to your MCU
+  make clean  # cleans build artifacts
+
+The Makefile automatically handles:
+
+- AVR MCU type (default: atmega328p)
+
+- CPU frequency (F_CPU)
+
+- compiler flags and source files
+
+- building and flashing workflow
+
+This allows you to compile and program each project quickly without
+modifying any paths or flags.
 
 This repository includes a bash script that allows you to conveniently build and flash your project to an ATmega microcontroller.
 By default, the script targets the atmega328p controller.
-
 
 To see all available options and usage instructions, run:
   ./avr_compile_and_flash.sh -h
@@ -91,3 +128,5 @@ By following this course and exploring the examples, you will learn:
 - How to write low-level code using C and direct register access
 - The differences between bare-metal C programming and Arduino-based development
 - Practical applications of AVR microcontrollers in embedded systems
+
+
