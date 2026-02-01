@@ -12,5 +12,6 @@
 #include "communication.hpp"
 #include "system_timer.hpp"
 #include "timer8_t.hpp"
+#include "led_driver.hpp"
 
 #endif

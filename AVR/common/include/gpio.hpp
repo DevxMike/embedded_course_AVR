@@ -2,29 +2,12 @@
 #define gpio_h
 
 #include <stdint.h>
+#include "interfaces.hpp"
 
 struct GPIO_t {
     volatile uint8_t* ddr_reg;
     volatile uint8_t* pin_reg;
     volatile uint8_t* port_reg;
-};
-
-class GPIO_interface {
-public:
-    enum Direction : uint8_t {
-        INPUT,
-        INPUT_PULLUP,
-        OUTPUT
-    };
-
-    enum Output : bool {
-        LOW,
-        HIGH
-    };
-
-    virtual void init(Direction d) = 0;
-    virtual void set_output(Output state) = 0;
-    virtual bool read_input() = 0;
 };
 
 class Digital_IO : public GPIO_interface {
