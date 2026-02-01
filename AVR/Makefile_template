@@ -28,7 +28,6 @@ SRC_COMMON := $(wildcard ../common/src/*.cpp)
 
 SRCS       := $(SRC_MAIN) $(SRC_COMMON)
 OBJS       := $(SRCS:.cpp=.o)
-INCLUDES := -I../common/include
 
 # =========================
 # Flags
@@ -38,8 +37,7 @@ CXXFLAGS := -mmcu=$(MCU) \
             -Os \
             -std=c++11 \
             -Wall \
-            -Wextra \
-	    $(INCLUDES)
+            -Wextra
 
 LDFLAGS  := -mmcu=$(MCU)
 

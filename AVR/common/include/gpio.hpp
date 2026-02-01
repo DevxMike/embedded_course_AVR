@@ -9,7 +9,7 @@ struct GPIO_t {
     volatile uint8_t* port_reg;
 };
 
-class Digital_IO {
+class GPIO_interface {
 public:
     enum Direction : uint8_t {
         INPUT,
@@ -17,7 +17,21 @@ public:
         OUTPUT
     };
 
-    void init(Direction d) {
+    enum Output : bool {
+        LOW,
+        HIGH
+    };
+
+    virtual void init(Direction d) = 0;
+    virtual void set_output(Output state) = 0;
+    virtual bool read_input() = 0;
+};
+
+class Digital_IO : public GPIO_interface {
+public:
+
+
+    void init(Direction d) override{
         switch(d) {
             case INPUT:
                 *regs.ddr_reg &= ~(1 << pin_num);
@@ -35,7 +49,7 @@ public:
         }
     }
 
-    void set_output(bool state) {
+    void set_output(Output state) override {
         if(state) {
             *regs.port_reg |= (1 << pin_num);
         }
@@ -44,7 +58,7 @@ public:
         }
     }
 
-    bool read_input() {
+    bool read_input() override {
         return (*regs.pin_reg & (1 << pin_num));
     }
 
