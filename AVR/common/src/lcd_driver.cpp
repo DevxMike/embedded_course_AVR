@@ -1,9 +1,6 @@
 #include "../include/communication.hpp"
 #include <util/delay.h>
 
-// -----------------------------
-// Konstruktor
-// -----------------------------
 LiquidCrystal::LiquidCrystal(GPIO_interface& rs, GPIO_interface& enable,
                              GPIO_interface& d0, GPIO_interface& d1, GPIO_interface& d2, GPIO_interface& d3,
                              GPIO_interface& d4, GPIO_interface& d5, GPIO_interface& d6, GPIO_interface& d7)
@@ -68,9 +65,6 @@ LiquidCrystal::LiquidCrystal(GPIO_interface& rs, GPIO_interface& rw, GPIO_interf
     begin(16, 1);
 }
 
-// -----------------------------
-// Public
-// -----------------------------
 void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize)
 {
     if(lines > 1) _displayfunction |= LCD_2LINE;
@@ -154,9 +148,6 @@ void LiquidCrystal::createChar(uint8_t location, uint8_t charmap[]) {
     for(uint8_t i=0;i<8;i++) putc(charmap[i]);
 }
 
-// -----------------------------
-// Comm_IO implementacja
-// -----------------------------
 char LiquidCrystal::putc(char c) {
     send(static_cast<uint8_t>(c), true);
     return c;
@@ -174,12 +165,8 @@ uint16_t LiquidCrystal::put_buffer(const char* b, uint16_t len) {
 }
 
 void LiquidCrystal::flush() {
-    // brak bufora sprzętowego, więc nic
 }
 
-// -----------------------------
-// Low-level
-// -----------------------------
 void LiquidCrystal::send(uint8_t value, bool mode) {
     _rs_pin->set_output(mode ? GPIO_interface::HIGH : GPIO_interface::LOW);
     if(_rw_pin) _rw_pin->set_output(GPIO_interface::LOW);
@@ -204,9 +191,9 @@ void LiquidCrystal::pulseEnable() {
   _enable_pin->set_output(GPIO_interface::LOW);
   _delay_us(1);
   _enable_pin->set_output(GPIO_interface::HIGH);
-  _delay_us(1);       // Enable pulse min 450 ns
+  _delay_us(1);
   _enable_pin->set_output(GPIO_interface::LOW);
-  _delay_us(50);      // minimalny delay, 50–100 us jest w porządku
+  _delay_us(50);
 }
 
 void LiquidCrystal::write4bits(uint8_t value) {

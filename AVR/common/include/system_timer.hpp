@@ -14,6 +14,7 @@ private:
     static void tick(timer8_t& t);
 
     static volatile uint32_t millis;
+    static volatile uint32_t microseconds;
 };
 
 #endif
