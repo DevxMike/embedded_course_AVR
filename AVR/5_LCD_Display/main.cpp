@@ -87,7 +87,6 @@ void test_lcd(LiquidCrystal& lcd, const char* tc) {
     _delay_ms(3000);
 }
 
-
 int main() {
     usart0.flush_tx = USART0_flush;
     usart0.rx_complete_cback = rx_callback;
@@ -104,7 +103,6 @@ int main() {
         lcd_ctrl_pins[2], // Enable
         lcd_data_pins[4], lcd_data_pins[5], lcd_data_pins[6], lcd_data_pins[7]
     );
-    lcd_4bit_no_rw.begin(16, 2, LCD_5x8DOTS);
 
     LiquidCrystal lcd_8bit_no_rw(
         lcd_ctrl_pins[0], // RS
@@ -112,34 +110,24 @@ int main() {
         lcd_data_pins[0], lcd_data_pins[1], lcd_data_pins[2], lcd_data_pins[3],
         lcd_data_pins[4], lcd_data_pins[5], lcd_data_pins[6], lcd_data_pins[7]
     );
-            LiquidCrystal lcd_8bit_rw(
-            lcd_ctrl_pins[0], // RS
-            lcd_ctrl_pins[1], // RW
-            lcd_ctrl_pins[2], // Enable
-            lcd_data_pins[0], lcd_data_pins[1], lcd_data_pins[2], lcd_data_pins[3],
-            lcd_data_pins[4], lcd_data_pins[5], lcd_data_pins[6], lcd_data_pins[7]
+
+    LiquidCrystal lcd_8bit_rw(
+        lcd_ctrl_pins[0], // RS
+        lcd_ctrl_pins[1], // RW
+        lcd_ctrl_pins[2], // Enable
+        lcd_data_pins[0], lcd_data_pins[1], lcd_data_pins[2], lcd_data_pins[3],
+           lcd_data_pins[4], lcd_data_pins[5], lcd_data_pins[6], lcd_data_pins[7]
         );
-        lcd_8bit_rw.begin(16, 2, LCD_5x8DOTS);
 
     sei();
 
     while(1) {
-
         test_lcd(lcd_4bit_no_rw, "4bit");
-    
-        // // -----------------------------
-        // // 2. 8-bit bez RW
-        // // -----------------------------
 
         test_lcd(lcd_8bit_no_rw, "8bit");
-    
-        // // -----------------------------
-        // // 3. 8-bit z RW
-        // // -----------------------------
 
         test_lcd(lcd_8bit_rw, "8bit rw");
-
-
+        
         // if (Timebase::now() - uart_timer >= 200) {
         //     uart_handle.flush();
         //     uart_timer = Timebase::now();

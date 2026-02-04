@@ -79,7 +79,7 @@ extern UART_t usart0;
 #endif
 
 template <typename comm_iface_class>
-class Communication : Comm_IO {
+class Communication : public Comm_IO {
 public:
     Communication(comm_iface_class& i):
         iface { i } {}
