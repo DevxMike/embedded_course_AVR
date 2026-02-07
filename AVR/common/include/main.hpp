@@ -12,6 +12,8 @@
 #include "communication.hpp"
 #include "system_timer.hpp"
 #include "timer8_t.hpp"
-#include "led_driver.hpp"
+#include "lcd_driver.hpp"
+
+#define USE_PCINT 1
 
 #endif

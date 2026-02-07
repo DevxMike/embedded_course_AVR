@@ -5,6 +5,43 @@
 
 #include "../include/communication.hpp"
 #include "../include/timer8_t.hpp"
+#include "../include/gpio.hpp"
+
+PCINT_Bank pcint_banks[PCINT_BANKS_NUMBER] { nullptr };
+
+#if USE_PCINT
+
+ISR(PCINT0_vect) {
+    uint8_t bank = 0;
+    
+    for (uint8_t i = 0; i < MAX_PCINT_PINS; ++i) {
+        if (pcint_banks[bank].pins[i]) {
+            pcint_banks[bank].pins[i]->on_pin_change();
+        }
+    }
+}
+
+ISR(PCINT1_vect) {
+    uint8_t bank = 1;
+    
+    for (uint8_t i = 0; i < MAX_PCINT_PINS; ++i) {
+        if (pcint_banks[bank].pins[i]) {
+            pcint_banks[bank].pins[i]->on_pin_change();
+        }
+    }
+}
+
+ISR(PCINT2_vect) {
+    uint8_t bank = 2;
+    
+    for (uint8_t i = 0; i < MAX_PCINT_PINS; ++i) {
+        if (pcint_banks[bank].pins[i]) {
+            pcint_banks[bank].pins[i]->on_pin_change();
+        }
+    }
+}
+
+#endif
 
 #if USE_TIMER0
 

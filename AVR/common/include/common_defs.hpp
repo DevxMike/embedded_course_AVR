@@ -48,7 +48,10 @@
 #define GPIOx_t(x) ((GPIO_t){ \
             .ddr_reg = &DDR##x, \
             .pin_reg = &PIN##x, \
-            .port_reg = &PORT##x \
+            .port_reg = &PORT##x, \
+            .pcicr_reg = nullptr, \
+            .pcifr_reg = nullptr, \
+            .pcmsk_reg = nullptr \
         })
 
 #endif

@@ -20,6 +20,7 @@ public:
     virtual void init(Direction d) = 0;
     virtual void set_output(Output state) = 0;
     virtual bool read_input() = 0;
+    virtual void on_pin_change() = 0;
 };
 
 class Comm_IO {

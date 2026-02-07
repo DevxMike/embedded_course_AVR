@@ -67,8 +67,8 @@ private:
     #endif
 
     SignleLEDSegment segments[display_size];
-    Digital_IO* common_pins;
-    Digital_IO* segment_pins;
+    GPIO_interface* common_pins;
+    GPIO_interface* segment_pins;
     volatile uint8_t active_segment;
 
     void set_active(uint8_t com_active) {
@@ -105,7 +105,7 @@ private:
     }
 
 public:
-    LEDDisplay(Digital_IO* com, Digital_IO* seg)
+    LEDDisplay(GPIO_interface* com, GPIO_interface* seg)
         : common_pins(com), segment_pins(seg), active_segment(0) {} 
 
     void next() {

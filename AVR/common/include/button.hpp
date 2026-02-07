@@ -8,7 +8,7 @@ public:
     static constexpr uint32_t debouncing_period = 50;
 
     typedef uint32_t (*timestamp_generator)();  
-    typedef void (*on_button_action_cb)(Digital_IO&);  
+    typedef void (*on_button_action_cb)(GPIO_interface&);  
 
     struct callback_set {
         on_button_action_cb on_press_cb;
@@ -23,7 +23,7 @@ public:
 
  
     
-    PushButton(Digital_IO& io, timestamp_generator g, const callback_set& cs):
+    PushButton(GPIO_interface& io, timestamp_generator g, const callback_set& cs):
         button_state { Idle }, gen_fn{ g }, old_reading { true }, input { io }, cbacks { cs } {}
 
     void poll() {
@@ -84,7 +84,7 @@ private:
     uint32_t button_timer;
     bool old_reading;
     timestamp_generator gen_fn;
-    Digital_IO& input;
+    GPIO_interface& input;
     callback_set cbacks;
 };
 

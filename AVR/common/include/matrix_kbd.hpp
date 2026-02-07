@@ -7,8 +7,8 @@
 template <uint8_t num_rows, uint8_t num_cols>
 class MatrixKBD {
 private:
-    Digital_IO* cols;
-    Digital_IO* rows;
+    GPIO_interface* cols;
+    GPIO_interface* rows;
 
     volatile uint8_t current_col;
     volatile bool button_readings[num_cols * num_rows];
@@ -17,10 +17,10 @@ private:
     void set_active_col(uint8_t col) {
         for(uint8_t i = 0; i < num_cols; ++i) {
             if(i == col) {
-                cols[i].init(Digital_IO::OUTPUT);
+                cols[i].init(GPIO_interface::OUTPUT);
             }
             else {
-                cols[i].init(Digital_IO::INPUT_PULLUP);
+                cols[i].init(GPIO_interface::INPUT_PULLUP);
             }
         }
     }
@@ -38,7 +38,7 @@ private:
     }
 
 public:
-    MatrixKBD(Digital_IO* cols_io, Digital_IO* rows_io):
+    MatrixKBD(GPIO_interface* cols_io, GPIO_interface* rows_io):
         cols { cols_io }, rows { rows_io }, current_col { 0 } {
             for(uint8_t i = 0; i < num_rows * num_cols; ++i) {
                 button_readings[i] = false;
@@ -49,7 +49,7 @@ public:
         set_all_cols_input();
 
         for(uint8_t i = 0; i < num_rows; ++i) {
-            rows[i].init(Digital_IO::INPUT_PULLUP);
+            rows[i].init(GPIO_interface::INPUT_PULLUP);
         }
     }
 
@@ -76,7 +76,7 @@ public:
         set_all_cols_input();
 
         current_col = (current_col + 1) % num_cols;
-        cols[current_col].init(Digital_IO::OUTPUT);
+        cols[current_col].init(GPIO_interface::OUTPUT);
         cols[current_col].set_output(false);
     }
 };
