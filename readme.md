@@ -1,132 +1,139 @@
 # AVR Course – Examples Repository
 
-This repository contains examples presented throughout the AVR programming course.
-The course shows how to work with AVR microcontrollers using both low-level AVR C/C++
-(register-level programming) and the Arduino framework for comparison.
+This repository contains all examples presented in the **AVR programming** part of **C++ embedded development** course. The course demonstrates how to program AVR microcontrollers using both **bare-metal C/C++** (register-level programming) and **Arduino sketches** for comparison.  
 
-The repository evolves together with the course – later lessons introduce refactoring,
-code reuse, and more structured project layouts, similar to real embedded projects.
+The repository evolves with the course, introducing refactoring, code reuse, and a structure closer to real embedded projects.
 
+# Course Objectives
+By following this course and exploring the examples, you will learn:
+- Basics of AVR architecture and hardware control
+- Low-level C++ programming using direct register access
+- How to structure reusable code for embedded projects
+- Practical applications in embedded systems using LEDs, buttons, UART, timers, and displays
+- The mini HAL in AVR/common/ enables rapid prototyping while keeping code hardware‑close and modular, preparing you for real-world embedded projects.
 
+---
 
 ## Repository Structure
 
 ### `ArduinoAVR/`
-Contains Arduino-based equivalents of the AVR examples.
-These sketches use the Arduino API and are intended to:
-- show the same ideas in a higher-level environment
-- help beginners understand the concepts faster
-- allow quick testing and prototyping
+Arduino-based equivalents of AVR examples, using the Arduino API for easier testing and learning.
+
+**Projects:**
+- **1_DigitalOutput/** – basic digital output example (LED blink)
+  - `main.ino` – Arduino sketch for blinking an LED
+- **2_Uart/** – UART communication example
+  - `uart/uart.ino` – Arduino sketch demonstrating serial communication
 
 ---
 
 ### `AVR/`
-Contains bare-metal AVR C/C++ examples using `avr-gcc` / `avr-g++`.
+Bare-metal AVR C/C++ examples compiled with `avr-gcc` / `avr-g++`. From lesson 5 onward, projects adopt a more structured layout with Makefiles and shared libraries.
 
-From lesson 5 onward, the project structure changes to better reflect
-real-world embedded development practices.
+**Projects:**
+- **1_DigitalOutput/** – basic digital output using registers
+  - `main.cpp`
+- **2_Uart/** – UART communication using registers
+  - `main.cpp`
+- **3_LEDDisplay/** – driving LEDs (multiplexed or single)
+  - `main.cpp`
+- **4_InputKeyboard/** – reading 4x4 matrix keyboard input
+  - `main.cpp`
+- **5_LCD_Display/** – LCD 16x2 screen example
+  - `main.cpp`, `Makefile`
+- **6_RGB_LED/** – controlling RGB LED with PWM & an encoder introducing PC interrupts
+  - `main.cpp`, `Makefile`
 
-#### `AVR/common/`
-Shared code used across multiple AVR examples.
-
-- `include/` – reusable headers (drivers, abstractions, utilities)
-- `src/` – source files with implementations (interrupts, timers, etc.)
-
-This folder contains reusable components such as:
-- GPIO abstraction
-- UART communication
-- timers and interrupts
-- button handling with debouncing
-- LED display drivers
-- logging utilities
+**Utilities:**
+- `avr_compile_and_flash.sh` – Bash script to build and flash AVR projects
+- `Makefile_template` – template Makefile for new projects
 
 ---
 
-### ⚠️ Important note about earlier lessons (1–4)
+### `AVR/common/` – Mini HAL & Shared Libraries
 
-Lessons **1–4 were refactored** to introduce a shared `common/` directory.
-Because of this change:
+Shared code used across multiple AVR examples, providing a **mini HAL** to simplify development.
+```text
+common/
+    include/
+        button.hpp
+        common_defs.hpp
+        communication.hpp
+        gpio.hpp
+        interfaces.hpp
+        lcd_driver.hpp
+        LEDDisplay.hpp
+        logger.hpp
+        main.hpp
+        matrix_kbd.hpp
+        system_timer.hpp
+        timer8_t.hpp
+        utils.hpp
+    src/
+        interrupts.cpp
+        lcd_driver.cpp
+        system_timer.cpp
+```
 
-- Older projects **may not compile without modification**
-- Header paths and file locations have changed
+**Provided components:**
+- **GPIO abstraction** – easy pin configuration and control (portable)
+- **Communication** – simple TX/RX handling (flexible & portable)
+- **Timers & interrupts** – helper functions for system timers
+- **Button handling** – debounced button reading (portable)
+- **LCD and LED display drivers** – for lessons on displays (portable)
+- **Logging utilities** – UART-based debugging
 
-To preserve full backward compatibility, **a complete backup of lessons 1–4**
-is available in: AVR/lesson1_to_4_backup/
+### Important notes
 
+- **logger requires more effort & testing**
+- **PCINT handling requires testing (hasn't been tested so far)**
 
-This backup contains:
-- the original project layout
-- original headers and source files
-- Arduino and AVR examples exactly as shown in the early lessons
+---
 
-👉 If you want to build or follow lessons 1–4 **exactly as presented in the course videos**,
-use the projects from `lesson1_to_4_backup`.
+This mini HAL allows lessons to **reuse code consistently** and remain close to hardware, while avoiding boilerplate in each project.
+
+---
+
+### `lesson1_to_4_backup/`
+Backup of early lessons to maintain original file layout.
+
+- Includes Arduino and AVR projects for lessons 1–4 exactly as in the course videos
+- Original headers and source files preserved
+- Use if you want to **follow the course exactly** without refactoring
 
 ---
 
 ## Requirements
 
 - `avr-gcc`, `avr-g++`, `avr-objcopy`
-- `avrdude`
-- AVR MCU (e.g. ATmega328P)
-- ISP programmer (e.g. USBasp) or Arduino bootloader
+- `avrdude` (for flashing)
+- AVR MCU (e.g., ATmega328P)
+- ISP programmer (e.g., USBasp) or Arduino bootloader
 - Arduino IDE (for Arduino examples)
 
 ---
 
-## Building AVR examples (manual)
+## Building & Flashing AVR Examples
 
+### Using Makefile (recommended for lessons ≥5)
 
-Example for ATmega328P:
+```bash
+make        # builds HEX
+make flash  # flashes the MCU
+make clean  # cleans build artifacts
+```
+
+The Makefile automatically handles MCU type, CPU frequency, compiler flags, and source files.
+
+avr_compile_and_flash.sh can also be used for convenience:
+```bash
+./avr_compile_and_flash.sh -h
+```
+
+Manual compilation (example for ATmega328P)
+
+```bash
 avr-g++ -mmcu=atmega328p -DF_CPU=16000000UL -Os -std=c++11 -o main.elf main.cpp
 avr-objcopy -O ihex -R .eeprom main.elf main.hex
 avrdude -c usbasp -p m328p -U flash:w:main.hex
-
-### Build and flash script for atmega
-Using the included Makefile
-
-Each AVR project (starting from project no. 5) comes with a ready-to-use Makefile, already configured
-for that project. You can build and flash the project directly with:
-
-  make        # builds the HEX
-  make flash  # flashes the HEX to your MCU
-  make clean  # cleans build artifacts
-
-The Makefile automatically handles:
-
-- AVR MCU type (default: atmega328p)
-
-- CPU frequency (F_CPU)
-
-- compiler flags and source files
-
-- building and flashing workflow
-
-This allows you to compile and program each project quickly without
-modifying any paths or flags.
-
-This repository includes a bash script that allows you to conveniently build and flash your project to an ATmega microcontroller.
-By default, the script targets the atmega328p controller.
-
-To see all available options and usage instructions, run:
-  ./avr_compile_and_flash.sh -h
-
-### AVR C Code
-1. Navigate to the `AVR_Code/` directory.
-2. Compile the code using `avr-gcc` (or a provided Makefile).
-3. Upload the compiled HEX file using `avrdude`.
-
-### Arduino Code
-1. Open the corresponding `.ino` file in the Arduino IDE from the `ArduinoAVR/` directory.
-2. Select the correct board and port.
-3. Upload the sketch directly using the IDE.
-
-## Course Objectives
-
-By following this course and exploring the examples, you will learn:
-- The basics of AVR architecture and hardware control
-- How to write low-level code using C and direct register access
-- The differences between bare-metal C programming and Arduino-based development
-- Practical applications of AVR microcontrollers in embedded systems
-
-
+```
