@@ -2,6 +2,9 @@
 #define gpio_h
 
 #include <stdint.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
 #include "interfaces.hpp"
 
 #define MAX_PCINT_PINS 8
@@ -62,8 +65,6 @@ public:
         if (pcint_num == PCINT_DISABLED || pcint_num > 7)
             return;
 
-        uint8_t sreg = SREG;
-
         cli();
 
         *regs.pcmsk_reg |= (1 << pcint_num);
@@ -74,7 +75,7 @@ public:
 
         read_input();
 
-        SREG = sreg;
+        sei();
     }
 
     void set_output(Output state) override {
@@ -108,10 +109,10 @@ public:
 
 private:
     volatile bool current;
-    GPIO_t& regs;
-    uint8_t pin_num;
-    uint8_t pcint_num;
     GPIO_t::pcint_callback_t pcint_callback;
+    uint8_t pin_num;
+    GPIO_t& regs;
+    uint8_t pcint_num;
 };
 
 #endif

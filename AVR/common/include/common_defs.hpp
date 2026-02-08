@@ -49,8 +49,8 @@
             .ddr_reg = &DDR##x, \
             .pin_reg = &PIN##x, \
             .port_reg = &PORT##x, \
-            .pcicr_reg = nullptr, \
-            .pcifr_reg = nullptr, \
+            .pcicr_reg = &PCICR, \
+            .pcifr_reg = &PCIFR, \
             .pcmsk_reg = nullptr \
         })
 

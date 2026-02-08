@@ -48,7 +48,7 @@ public:
     }
 };
 
-const uint16_t buffer_size = 125;
+const uint16_t buffer_size = 256;
 
 struct UART_t {
     typedef void (*cback_type)(UART_t&);

@@ -48,6 +48,9 @@ Bare-metal AVR C/C++ examples compiled with `avr-gcc` / `avr-g++`. From lesson 5
 - `avr_compile_and_flash.sh` – Bash script to build and flash AVR projects
 - `Makefile_template` – template Makefile for new projects
 
+**MISC:**
+- **PCINT_test** – PCINT configuration example (test case)
+
 ---
 
 ### `AVR/common/` – Mini HAL & Shared Libraries
@@ -86,7 +89,7 @@ common/
 ### Important notes
 
 - **logger requires more effort & testing**
-- **PCINT handling requires testing (hasn't been tested so far)**
+- **PCINT handling tested and proven working as designed - example of PCINT configuration is available at PCINT_test**
 
 ---
 

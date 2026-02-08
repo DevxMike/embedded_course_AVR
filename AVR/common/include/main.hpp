@@ -16,4 +16,6 @@
 
 #define USE_PCINT 1
 
+#define DEBUG_PRINT_ENABLED 1
+
 #endif
