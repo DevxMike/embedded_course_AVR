@@ -17,7 +17,7 @@ struct GPIO_t {
     volatile uint8_t* pin_reg;
     volatile uint8_t* port_reg;
 
-    using pcint_callback_t = void(*)(GPIO_interface& io);
+    using pcint_callback_t = void(*)(GPIO_interface& io, void* context);
 
     volatile uint8_t* pcicr_reg;
     volatile uint8_t* pcifr_reg;
@@ -52,7 +52,7 @@ public:
         }
     }
 
-    void attach_pcint(GPIO_t::pcint_callback_t cb) {
+    void attach_pcint(GPIO_t::pcint_callback_t cb, void* context = nullptr) {
         if (!regs.pcmsk_reg || !regs.pcicr_reg)
             return; 
 
@@ -71,6 +71,7 @@ public:
         *regs.pcicr_reg |= (1 << regs.pcicr_bit);
         
         pcint_callback = cb;
+        additional_context = context;
         pcint_banks[bank_idx].pins[pcint_num] = this;
 
         read_input();
@@ -96,7 +97,7 @@ public:
         auto old_input = current;
 
         if (pcint_callback && old_input != read_input())
-            pcint_callback(*this);
+            pcint_callback(*this, additional_context);
         
         read_input();
     }
@@ -113,6 +114,7 @@ private:
     uint8_t pin_num;
     GPIO_t& regs;
     uint8_t pcint_num;
+    void* additional_context;
 };
 
 #endif

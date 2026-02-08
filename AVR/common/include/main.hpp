@@ -16,6 +16,8 @@
 
 #define USE_PCINT 1
 
+#include "relative_encoder.hpp"
+
 #define DEBUG_PRINT_ENABLED 1
 
 #endif

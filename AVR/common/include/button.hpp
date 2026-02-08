@@ -21,7 +21,14 @@ public:
             on_press_cb { on_press }, on_release_cb { on_release } {};
     };
 
- 
+    struct button_setup {
+        GPIO_interface& btn_io;
+        timestamp_generator g;
+        const callback_set action_cb;
+    };
+
+    PushButton(button_setup& s):
+        button_state { Idle }, gen_fn{ s.g }, old_reading { true }, input { s.btn_io }, cbacks { s.action_cb } {} 
     
     PushButton(GPIO_interface& io, timestamp_generator g, const callback_set& cs):
         button_state { Idle }, gen_fn{ g }, old_reading { true }, input { io }, cbacks { cs } {}

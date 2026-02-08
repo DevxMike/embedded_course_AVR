@@ -9,6 +9,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "../common/include/main.hpp"
+#include <stdio.h>
 
 
 timer8_t timer0 = timer0_base;
@@ -63,29 +64,59 @@ Digital_IO lcd_ctrl_pins[] = {
     {GPIOC_desc, PC2}  // Enable
 };
 
-void test_lcd(LiquidCrystal& lcd, const char* tc) {
-    lcd.begin(16, 2, LCD_5x8DOTS);
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.puts("Test RS/Enable");
-    lcd.setCursor(0, 1);
-    lcd.puts(tc);
-    lcd.cursor();
-    _delay_ms(500);
-    lcd.blink();
-    _delay_ms(500);
-    lcd.noCursor();
-    lcd.noBlink();
-    lcd.leftToRight();
-    lcd.rightToLeft();
-    lcd.autoscroll();
-    for(int i=0;i<16;i++) lcd.putc('A'+i);
-    lcd.noAutoscroll();
-    lcd.scrollDisplayLeft();
-    lcd.scrollDisplayRight();
-    lcd.home();
-    _delay_ms(3000);
+Digital_IO enc_btn_pin = {
+    GPIOC_desc, 
+    PC3
+};
+
+GPIO_t GPIOD_enc_desc = GPIOx_t(D);
+
+Digital_IO enc_channels[] {
+    { (GPIOD_enc_desc.pcmsk_reg = &PCMSK2, GPIOD_enc_desc.pcicr_bit = 2, GPIOD_enc_desc), PD2, PCINT18 },
+    { GPIOD_enc_desc, PD3, PCINT19}
+};
+
+void on_button_press(GPIO_interface& btn) {
+    uart_handle.puts("Encoder button pressed!\n\r");
 }
+
+void encoder_change_callback(GPIO_interface& btn, void* context) {
+    if (context != nullptr) {
+        RotaryEncoder<uint8_t, 0, 255>* enc = (RotaryEncoder<uint8_t, 0, 255>*)context;
+        enc->update();
+    }
+}
+
+encoder_with_btn_setup_t enc_setup {
+    {enc_channels[0], enc_channels[1], encoder_change_callback },
+    { enc_btn_pin, Timebase::now, { on_button_press, nullptr } }
+};
+
+RotaryEncoderBtn<uint8_t, 0, 255> encoder { enc_setup };
+
+// void test_lcd(LiquidCrystal& lcd, const char* tc) {
+//     lcd.begin(16, 2, LCD_5x8DOTS);
+//     lcd.clear();
+//     lcd.setCursor(0, 0);
+//     lcd.puts("Test RS/Enable");
+//     lcd.setCursor(0, 1);
+//     lcd.puts(tc);
+//     lcd.cursor();
+//     _delay_ms(500);
+//     lcd.blink();
+//     _delay_ms(500);
+//     lcd.noCursor();
+//     lcd.noBlink();
+//     lcd.leftToRight();
+//     lcd.rightToLeft();
+//     lcd.autoscroll();
+//     for(int i=0;i<16;i++) lcd.putc('A'+i);
+//     lcd.noAutoscroll();
+//     lcd.scrollDisplayLeft();
+//     lcd.scrollDisplayRight();
+//     lcd.home();
+//     _delay_ms(3000);
+// }
 
 int main() {
     usart0.flush_tx = USART0_flush;
@@ -104,15 +135,22 @@ int main() {
         lcd_data_pins[4], lcd_data_pins[5], lcd_data_pins[6], lcd_data_pins[7]
     );
 
+    enc_btn_pin.init(GPIO_interface::Direction::INPUT_PULLUP);
+    encoder.init();
+
     sei();
 
     while(1) {
-        test_lcd(lcd_4bit_no_rw, "4bit");
-        
-        // if (Timebase::now() - uart_timer >= 200) {
-        //     uart_handle.flush();
-        //     uart_timer = Timebase::now();
-        // }
+        // test_lcd(lcd_4bit_no_rw, "4bit");
+        encoder.handleBtn();
+        if (Timebase::now() - uart_timer >= 200) {
+            char buf[50];
+            sprintf(buf, "Encoder value: %ld\n\r", encoder.getValue());
+            uart_handle.puts(buf);
+
+            uart_handle.flush();
+            uart_timer = Timebase::now();
+        }
 
         // if (Timebase::now() - delay_timer >= 1000) {
         //     uart_handle.puts("Hello world!\n\r");

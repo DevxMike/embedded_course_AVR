@@ -7,7 +7,6 @@
 class Timebase {
 public:
     static void init(timer8_t& t);
-
     static uint32_t now();
     
 private:

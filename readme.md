@@ -41,7 +41,7 @@ Bare-metal AVR C/C++ examples compiled with `avr-gcc` / `avr-g++`. From lesson 5
   - `main.cpp`
 - **5_LCD_Display/** – LCD 16x2 screen example
   - `main.cpp`, `Makefile`
-- **6_RGB_LED/** – controlling RGB LED with PWM & an encoder introducing PC interrupts
+- **(WIP)6_RGB_LED/** – controlling RGB LED with PWM & an encoder introducing PC interrupts
   - `main.cpp`, `Makefile`
 
 **Utilities:**
@@ -69,6 +69,7 @@ common/
         logger.hpp
         main.hpp
         matrix_kbd.hpp
+        relative_encoder.hpp
         system_timer.hpp
         timer8_t.hpp
         utils.hpp
@@ -83,6 +84,7 @@ common/
 - **Communication** – simple TX/RX handling (flexible & portable)
 - **Timers & interrupts** – helper functions for system timers
 - **Button handling** – debounced button reading (portable)
+- **Rotary encoder (relative) handling** - simple and easy in use encoder handler template (portable)
 - **LCD and LED display drivers** – for lessons on displays (portable)
 - **Logging utilities** – UART-based debugging
 

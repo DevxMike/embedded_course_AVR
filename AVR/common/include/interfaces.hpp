@@ -4,7 +4,10 @@
 #include "utils.hpp"
 #include "timer8_t.hpp"
 
+
 class GPIO_interface {
+private:
+    typedef void(*pcint_cb)(GPIO_interface& io, void* context);
 public:
     enum Direction : uint8_t {
             INPUT,
@@ -21,6 +24,7 @@ public:
     virtual void set_output(Output state) = 0;
     virtual bool read_input() = 0;
     virtual void on_pin_change() = 0;
+    virtual void attach_pcint(pcint_cb cb, void* context) = 0;
 };
 
 class Comm_IO {
