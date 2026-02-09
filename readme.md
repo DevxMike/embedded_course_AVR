@@ -41,7 +41,7 @@ Bare-metal AVR C/C++ examples compiled with `avr-gcc` / `avr-g++`. From lesson 5
   - `main.cpp`
 - **5_LCD_Display/** – LCD 16x2 screen example
   - `main.cpp`, `Makefile`
-- **(WIP)6_RGB_LED/** – controlling RGB LED with PWM & an encoder introducing PC interrupts
+- **6_Rotary_Encoder/** – display encoder value on the LCD
   - `main.cpp`, `Makefile`
 
 **Utilities:**

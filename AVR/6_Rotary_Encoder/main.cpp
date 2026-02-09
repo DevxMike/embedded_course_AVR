@@ -53,14 +53,12 @@ Communication<UART_t> uart_handle(usart0);
 GPIO_t GPIOD_desc = GPIOx_t(D);
 GPIO_t GPIOB_desc = GPIOx_t(B);
 Digital_IO lcd_data_pins[] = {
-    {GPIOB_desc, PB0}, {GPIOB_desc, PB1}, {GPIOD_desc, PD2}, {GPIOD_desc, PD3},
     {GPIOD_desc, PD4}, {GPIOD_desc, PD5}, {GPIOD_desc, PD6}, {GPIOD_desc, PD7}
 };
 
 GPIO_t GPIOC_desc = GPIOx_t(C);
 Digital_IO lcd_ctrl_pins[] = {
     {GPIOC_desc, PC0}, // RS
-    {GPIOC_desc, PC1}, // RW
     {GPIOC_desc, PC2}  // Enable
 };
 
@@ -94,30 +92,6 @@ encoder_with_btn_setup_t enc_setup {
 
 RotaryEncoderBtn<uint8_t, 0, 255> encoder { enc_setup };
 
-// void test_lcd(LiquidCrystal& lcd, const char* tc) {
-//     lcd.begin(16, 2, LCD_5x8DOTS);
-//     lcd.clear();
-//     lcd.setCursor(0, 0);
-//     lcd.puts("Test RS/Enable");
-//     lcd.setCursor(0, 1);
-//     lcd.puts(tc);
-//     lcd.cursor();
-//     _delay_ms(500);
-//     lcd.blink();
-//     _delay_ms(500);
-//     lcd.noCursor();
-//     lcd.noBlink();
-//     lcd.leftToRight();
-//     lcd.rightToLeft();
-//     lcd.autoscroll();
-//     for(int i=0;i<16;i++) lcd.putc('A'+i);
-//     lcd.noAutoscroll();
-//     lcd.scrollDisplayLeft();
-//     lcd.scrollDisplayRight();
-//     lcd.home();
-//     _delay_ms(3000);
-// }
-
 int main() {
     usart0.flush_tx = USART0_flush;
     usart0.rx_complete_cback = rx_callback;
@@ -131,9 +105,11 @@ int main() {
     uint32_t delay_timer = 0;
     LiquidCrystal lcd_4bit_no_rw(
         lcd_ctrl_pins[0], // RS
-        lcd_ctrl_pins[2], // Enable
-        lcd_data_pins[4], lcd_data_pins[5], lcd_data_pins[6], lcd_data_pins[7]
+        lcd_ctrl_pins[1], // Enable
+        lcd_data_pins[0], lcd_data_pins[1], lcd_data_pins[2], lcd_data_pins[3]
     );
+
+    lcd_4bit_no_rw.begin(16, 2, LCD_5x8DOTS);
 
     enc_btn_pin.init(GPIO_interface::Direction::INPUT_PULLUP);
     encoder.init();
@@ -143,10 +119,14 @@ int main() {
     while(1) {
         // test_lcd(lcd_4bit_no_rw, "4bit");
         encoder.handleBtn();
-        if (Timebase::now() - uart_timer >= 200) {
+        if (Timebase::now() - uart_timer >= 300) {
             char buf[50];
-            sprintf(buf, "Encoder value: %ld\n\r", encoder.getValue());
+            sprintf(buf, "Encoder: %ld\n\r", encoder.getValue());
             uart_handle.puts(buf);
+            sprintf(buf, "Encoder: %ld", encoder.getValue());
+            lcd_4bit_no_rw.clear();
+            lcd_4bit_no_rw.setCursor(0, 0);
+            lcd_4bit_no_rw.puts(buf);
 
             uart_handle.flush();
             uart_timer = Timebase::now();
