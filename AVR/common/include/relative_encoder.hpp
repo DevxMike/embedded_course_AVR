@@ -24,7 +24,7 @@ public:
     RotaryEncoder(base_encoder_setup_t& setup):
         enc_setup{ setup } {}
 
-    virtual void init() final {
+    virtual void init() {
         enc_setup.pinA.init(GPIO_interface::Direction::INPUT_PULLUP);
         enc_setup.pinB.init(GPIO_interface::Direction::INPUT_PULLUP);
         enc_setup.pinA.attach_pcint(enc_setup.encoder_change_cb, (void*)this);
@@ -53,7 +53,11 @@ public:
         prevState = currState;
     }
 
-    int32_t getValue() const { return value; }
+    virtual void resetValue(val_t v = 0) final {
+        value = v;
+    }
+
+    val_t getValue() const { return value; }
 
 private:
     base_encoder_setup_t& enc_setup;
@@ -69,6 +73,11 @@ public:
 
     void handleBtn() {
         return enc_btn.poll();
+    }
+
+    void init() override {
+        RotaryEncoder<val_t, min, max>::init();
+        enc_btn.init();
     }
 
 private:

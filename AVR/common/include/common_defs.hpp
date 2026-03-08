@@ -2,6 +2,8 @@
 #define common_defs_h
 
 #include "timer8_t.hpp"
+#include "timer16_t.hpp"
+
 #include "communication.hpp"
 #include "gpio.hpp"
 
@@ -31,6 +33,26 @@
     .timer_overflow_cb = nullptr \
 })
 
+#define timer1_base ((timer16_t){ \
+    .tccra = &TCCR1A, \
+    .tccrb = &TCCR1B, \
+    .tccrc = &TCCR1C, \
+    .tcnth = &TCNT1H,   \
+    .tcntl = &TCNT1L,   \
+    .ocrah = &OCR1AH,   \
+    .ocral = &OCR1AL,   \
+    .ocrbh = &OCR1BH,   \
+    .ocrbl = &OCR1BL,   \
+    .icrh = &ICR1H,   \
+    .icrl = &ICR1L,   \
+    .timsk = &TIMSK1, \
+    .tifr = &TIFR1,   \
+    .compareB_cb = nullptr,   \
+    .compareA_cb = nullptr,   \
+    .timer_overflow_cb = nullptr, \
+    .input_capture_cb = nullptr \
+})
+
 #define usart_base ((UART_t){   \
     .udr = &UDR0,      \
     .ucsra = &UCSR0A,  \
@@ -52,6 +74,16 @@
             .pcicr_reg = &PCICR, \
             .pcifr_reg = &PCIFR, \
             .pcmsk_reg = nullptr \
+        })
+
+#define GPIOx_PCINT_t(x, pcmsk, _pcicr_bit) ((GPIO_t){ \
+            .ddr_reg = &DDR##x, \
+            .pin_reg = &PIN##x, \
+            .port_reg = &PORT##x, \
+            .pcicr_reg = &PCICR, \
+            .pcifr_reg = &PCIFR, \
+            .pcmsk_reg = &pcmsk, \
+            .pcicr_bit = _pcicr_bit \
         })
 
 #endif

@@ -43,6 +43,8 @@ Bare-metal AVR C/C++ examples compiled with `avr-gcc` / `avr-g++`. From lesson 5
   - `main.cpp`, `Makefile`
 - **6_Rotary_Encoder/** – display encoder value on the LCD
   - `main.cpp`, `Makefile`
+- **7_RGB_LED_Menu/** – simple menu to drive RGB LED with hardware PWM
+  - `main.cpp`, `menu.cpp`, `menu.hpp` `Makefile`
 
 **Utilities:**
 - `avr_compile_and_flash.sh` – Bash script to build and flash AVR projects
@@ -72,6 +74,7 @@ common/
         relative_encoder.hpp
         system_timer.hpp
         timer8_t.hpp
+        timer16_t.hpp
         utils.hpp
     src/
         interrupts.cpp

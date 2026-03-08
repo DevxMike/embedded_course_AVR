@@ -5,6 +5,7 @@
 
 #include "../include/communication.hpp"
 #include "../include/timer8_t.hpp"
+#include "../include/timer16_t.hpp"
 #include "../include/gpio.hpp"
 
 PCINT_Bank pcint_banks[PCINT_BANKS_NUMBER] { nullptr };
@@ -40,6 +41,33 @@ ISR(PCINT2_vect) {
         }
     }
 }
+
+#endif
+
+#if USE_TIMER1
+    ISR(TIMER1_COMPA_vect) {
+        if(timer1.compareA_cb != nullptr) {
+            timer1.compareA_cb(timer1);
+        }
+    }
+
+    ISR(TIMER1_COMPB_vect) {
+        if(timer1.compareB_cb != nullptr) {
+            timer1.compareB_cb(timer1);
+        }
+    }
+
+    ISR(TIMER1_OVF_vect) {
+        if(timer1.timer_overflow_cb != nullptr) {
+            timer1.timer_overflow_cb(timer1);
+        }
+    }
+
+    ISR(TIMER1_CAPT_vect) {
+        if(timer1.input_capture_cb != nullptr) {
+            timer1.input_capture_cb(timer1);
+        }        
+    }
 
 #endif
 

@@ -3,7 +3,9 @@
 
 #define USE_UART 1
 #define USE_TIMER0 1
-#define USE_TIMER2 0
+#define USE_TIMER1 1
+#define USE_TIMER2 1
+
 
 #define USE_TIMEBASE 1
 
@@ -12,6 +14,7 @@
 #include "communication.hpp"
 #include "system_timer.hpp"
 #include "timer8_t.hpp"
+#include "timer16_t.hpp"
 #include "lcd_driver.hpp"
 
 #define USE_PCINT 1

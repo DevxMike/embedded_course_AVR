@@ -33,6 +33,10 @@ public:
     PushButton(GPIO_interface& io, timestamp_generator g, const callback_set& cs):
         button_state { Idle }, gen_fn{ g }, old_reading { true }, input { io }, cbacks { cs } {}
 
+    void init() {
+        input.init(GPIO_interface::Direction::INPUT_PULLUP);
+    }
+
     void poll() {
         bool current_reading = input.read_input();
 
