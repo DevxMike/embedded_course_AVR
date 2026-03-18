@@ -45,6 +45,8 @@ Bare-metal AVR C/C++ examples compiled with `avr-gcc` / `avr-g++`. From lesson 5
   - `main.cpp`, `Makefile`
 - **7_RGB_LED_Menu/** – simple menu to drive RGB LED with hardware PWM
   - `main.cpp`, `menu.cpp`, `menu.hpp` `Makefile`
+- **7_ADC/** – ADC hardware and ADC singleton wrapper
+  - `main.cpp`, `Makefile`
 
 **Utilities:**
 - `avr_compile_and_flash.sh` – Bash script to build and flash AVR projects
@@ -61,6 +63,7 @@ Shared code used across multiple AVR examples, providing a **mini HAL** to simpl
 ```text
 common/
     include/
+        adc.hpp
         button.hpp
         common_defs.hpp
         communication.hpp
@@ -83,6 +86,7 @@ common/
 ```
 
 **Provided components:**
+- **ADC abstraction** – easy AVR ADC config and utilization
 - **GPIO abstraction** – easy pin configuration and control (portable)
 - **Communication** – simple TX/RX handling (flexible & portable)
 - **Timers & interrupts** – helper functions for system timers

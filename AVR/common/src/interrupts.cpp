@@ -7,8 +7,19 @@
 #include "../include/timer8_t.hpp"
 #include "../include/timer16_t.hpp"
 #include "../include/gpio.hpp"
+#include "../include/adc.hpp"
 
 PCINT_Bank pcint_banks[PCINT_BANKS_NUMBER] { nullptr };
+
+#if USE_ADC
+
+ISR(ADC_vect) {
+    if (adc0.on_conv_complete) {
+        adc0.on_conv_complete(adc0);
+    }
+}
+
+#endif
 
 #if USE_PCINT
 

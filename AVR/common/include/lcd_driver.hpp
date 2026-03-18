@@ -1,5 +1,7 @@
-#ifndef led_driver_hpp
-#define led_driver_hpp
+#ifndef lcd_driver_hpp
+#define lcd_driver_hpp
+
+#include "interfaces.hpp"
 
 // LCD commands
 #define LCD_CLEARDISPLAY 0x01
@@ -74,18 +76,18 @@ public:
     void command(uint8_t value);
 
     // Comm_IO interface
-    virtual char putc(char c);
-    virtual uint16_t puts(const char* s);
-    virtual uint16_t put_buffer(const char* b, uint16_t len);
-    virtual void flush();
+    virtual char putc(char c) override;
+    virtual uint16_t puts(const char* s) override;
+    virtual uint16_t put_buffer(const char* b, uint16_t len) override;
+    virtual void flush() override;
     inline uint32_t write(uint8_t c) { return putc(static_cast<char>(c)); }
 
 private:
-    Custom::Optional<char> peek() const {
+    Custom::Optional<char> peek() const override {
         return {};
     }
 
-    Custom::Optional<char> getc() {
+    Custom::Optional<char> getc() override {
         return {};
     }
 
