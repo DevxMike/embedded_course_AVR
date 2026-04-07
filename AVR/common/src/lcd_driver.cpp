@@ -1,4 +1,6 @@
+#include "../include/lcd_driver.hpp"
 #include "../include/communication.hpp"
+#include "../include/gpio.hpp"
 #include <util/delay.h>
 
 LiquidCrystal::LiquidCrystal(GPIO_interface& rs, GPIO_interface& enable,

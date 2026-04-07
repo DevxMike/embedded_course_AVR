@@ -1,7 +1,8 @@
-#ifndef button_hpp
-#define button_hpp
+#ifndef BUTTON_HPP
+#define BUTTON_HPP
 
-#include "gpio.hpp"
+#include <stdint.h>
+#include "../include/interfaces.hpp"
 
 class PushButton {
 public:
@@ -17,8 +18,7 @@ public:
         callback_set(
             on_button_action_cb on_press = nullptr, 
             on_button_action_cb on_release = nullptr
-        ):
-            on_press_cb { on_press }, on_release_cb { on_release } {};
+        );
     };
 
     struct button_setup {
@@ -27,69 +27,18 @@ public:
         const callback_set action_cb;
     };
 
-    PushButton(button_setup& s):
-        button_state { Idle }, gen_fn{ s.g }, old_reading { true }, input { s.btn_io }, cbacks { s.action_cb } {} 
-    
-    PushButton(GPIO_interface& io, timestamp_generator g, const callback_set& cs):
-        button_state { Idle }, gen_fn{ g }, old_reading { true }, input { io }, cbacks { cs } {}
+    PushButton(button_setup& s);
+    PushButton(GPIO_interface& io, timestamp_generator g, const callback_set& cs);
 
-    void init() {
-        input.init(GPIO_interface::Direction::INPUT_PULLUP);
-    }
-
-    void poll() {
-        bool current_reading = input.read_input();
-
-        enum {
-            Released = true,
-            Pushed = false
-        } ReadingMapping;
-
-        switch(button_state) {
-            case Idle:
-                if(old_reading != current_reading) {
-                    old_reading = current_reading;
-                    button_timer = gen_fn();
-                    button_state = Debouncing;
-                }
-                break;
-
-            case Debouncing:
-                if(gen_fn() - button_timer >= debouncing_period) {
-                    if(old_reading == current_reading) {
-                        button_state = Action;
-                    }
-                    else {
-                        old_reading = current_reading;
-                        button_state = Idle;
-                    }
-                }
-                break;
-
-            case Action:
-                if(old_reading == Released && cbacks.on_release_cb != nullptr) {
-                    cbacks.on_release_cb(input);
-                }
-                else if(old_reading == Pushed && cbacks.on_press_cb != nullptr) {
-                    cbacks.on_press_cb(input);
-                }
-
-                old_reading = current_reading;
-                button_state = Idle;
-                break;
-
-            default:
-                button_state = Idle;
-                break;
-        }
-    }
+    void init();
+    void poll();
 
 private:
-    enum {
+    enum State : uint8_t {
         Idle,
         Debouncing,
         Action
-    } ButtonStates;
+    };
 
     uint8_t button_state;
     uint32_t button_timer;

@@ -8,8 +8,19 @@
 #include "../include/timer16_t.hpp"
 #include "../include/gpio.hpp"
 #include "../include/adc.hpp"
+#include "../include/spi.hpp"
 
 PCINT_Bank pcint_banks[PCINT_BANKS_NUMBER] { nullptr };
+
+#if USE_SPI
+
+ISR(SPI_STC_vect) {
+    SPI_wrapper::instance().tx_cplt_cb();
+    SPI_wrapper::instance().rx_cplt_cb();
+}
+
+
+#endif
 
 #if USE_ADC
 

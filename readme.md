@@ -4,6 +4,10 @@ This repository contains all examples presented in the **AVR programming** part 
 
 The repository evolves with the course, introducing refactoring, code reuse, and a structure closer to real embedded projects.
 
+# Note to contributors
+
+You are more than welcome to contribute to this project by testing and creating PR with fixes for potential issues.
+
 # Course Objectives
 By following this course and exploring the examples, you will learn:
 - Basics of AVR architecture and hardware control
@@ -45,8 +49,14 @@ Bare-metal AVR C/C++ examples compiled with `avr-gcc` / `avr-g++`. From lesson 5
   - `main.cpp`, `Makefile`
 - **7_RGB_LED_Menu/** – simple menu to drive RGB LED with hardware PWM
   - `main.cpp`, `menu.cpp`, `menu.hpp` `Makefile`
-- **7_ADC/** – ADC hardware and ADC singleton wrapper
+- **8_ADC/** – ADC hardware and ADC singleton wrapper
   - `main.cpp`, `Makefile`
+- **9_SPI_Communication** – implementation of communication wrapper based on Communication template defined in previous lessons
+  - `main.cpp`, `Makefile`
+  **IMPORTANT NOTE** – spi implementation is not finished, requires improvement / fixing, currently abandoned due to no available time slot for this part of the project
+  **IMPORTANT NOTE** – at this point, code has been refactored (move code to .cpp files), previous version available at **commit 3137a62d88f61898fef507db7f0748bec0553d67**
+
+
 
 **Utilities:**
 - `avr_compile_and_flash.sh` – Bash script to build and flash AVR projects
@@ -60,6 +70,8 @@ Bare-metal AVR C/C++ examples compiled with `avr-gcc` / `avr-g++`. From lesson 5
 ### `AVR/common/` – Mini HAL & Shared Libraries
 
 Shared code used across multiple AVR examples, providing a **mini HAL** to simplify development.
+**IMPORTANT NOTE**: structure changes significantly after commit 3137a62d88f61898fef507db7f0748bec0553d67
+
 ```text
 common/
     include/
@@ -67,6 +79,7 @@ common/
         button.hpp
         common_defs.hpp
         communication.hpp
+        cyclic_buffer.hpp
         gpio.hpp
         interfaces.hpp
         lcd_driver.hpp
@@ -80,13 +93,18 @@ common/
         timer16_t.hpp
         utils.hpp
     src/
+        adc.cpp
+        button.cpp
+        gpio.cpp
         interrupts.cpp
         lcd_driver.cpp
+        spi.cpp
         system_timer.cpp
 ```
 
 **Provided components:**
 - **ADC abstraction** – easy AVR ADC config and utilization
+- **SPI abstraction** – easy AVR SPI based on Communication implementation
 - **GPIO abstraction** – easy pin configuration and control (portable)
 - **Communication** – simple TX/RX handling (flexible & portable)
 - **Timers & interrupts** – helper functions for system timers
@@ -99,7 +117,7 @@ common/
 
 - **logger requires more effort & testing**
 - **PCINT handling tested and proven working as designed - example of PCINT configuration is available at PCINT_test**
-
+- **structure changes significantly after commit 3137a62d88f61898fef507db7f0748bec0553d67** - whole codebase has not been yet tested, if you want a stable version of Lesson 5 -> Lesson 8, fetch the mentioned commit
 ---
 
 This mini HAL allows lessons to **reuse code consistently** and remain close to hardware, while avoiding boilerplate in each project.
